@@ -42,9 +42,13 @@ class ReaderController extends ChangeNotifier {
   bool get isDirty => _isDirty;
   bool get hasDocument => _currentDocument != null;
 
-  ReaderController() {
-    // Initialise with sample guide document
-    _currentDocument = _fileService.getSampleDocument();
+  ReaderController({String? initialFilePath}) {
+    if (initialFilePath != null) {
+      openFile(initialFilePath);
+    } else {
+      // Initialise with sample guide document
+      _currentDocument = _fileService.getSampleDocument();
+    }
   }
 
   void updateContent(String newContent) {
@@ -230,6 +234,7 @@ class ReaderController extends ChangeNotifier {
     try {
       final doc = await _fileService.loadFile(filePath);
       _currentDocument = doc;
+      _viewMode = ViewMode.rendered;
       _isLoading = false;
       _isDirty = false;
 
@@ -248,6 +253,7 @@ class ReaderController extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _errorMessage = 'Failed to load file: ${e.toString()}';
+      _currentDocument ??= _fileService.getSampleDocument();
       notifyListeners();
     }
   }
@@ -261,7 +267,10 @@ class ReaderController extends ChangeNotifier {
 
   Future<void> reloadCurrentFile() async {
     if (_currentDocument?.path != null) {
+      final currentMode = _viewMode;
       await openFile(_currentDocument!.path!);
+      _viewMode = currentMode;
+      notifyListeners();
     }
   }
 

@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hob_markdown_reader/services/file_open_service.dart';
 import 'package:hob_markdown_reader/services/markdown_parser_service.dart';
 import 'package:hob_markdown_reader/state/reader_controller.dart';
 import 'package:hob_markdown_reader/theme/app_theme.dart';
@@ -8,6 +11,7 @@ import 'package:hob_markdown_reader/ui/widgets/empty_state_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/markdown_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/raw_markdown_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/split_view.dart';
+import 'package:hob_markdown_reader/ui/widgets/unsaved_changes_dialog.dart';
 
 void main() {
   group('MarkdownParserService Tests', () {
@@ -239,6 +243,182 @@ Setext Level 2
       expect(find.text('Welcome Guide'), findsOneWidget);
 
       controller.dispose();
+    });
+  });
+
+  group('ReaderController File Opening & ViewMode Tests', () {
+    late Directory tempDir;
+    late File testFile;
+
+    setUp(() async {
+      tempDir = await Directory.systemTemp.createTemp('md_test_');
+      testFile = File('${tempDir.path}/sample.md');
+      await testFile.writeAsString('# Temp Markdown File\n\nContent here.');
+    });
+
+    tearDown(() async {
+      if (await tempDir.exists()) {
+        await tempDir.delete(recursive: true);
+      }
+    });
+
+    test('openFile sets viewMode to rendered even if previously in split or source mode', () async {
+      final controller = ReaderController();
+      controller.setViewMode(ViewMode.source);
+      expect(controller.viewMode, ViewMode.source);
+
+      await controller.openFile(testFile.path);
+
+      expect(controller.currentDocument, isNotNull);
+      expect(controller.currentDocument!.fileName, 'sample.md');
+      expect(controller.viewMode, ViewMode.rendered);
+      controller.dispose();
+    });
+
+    test('reloadCurrentFile preserves current viewMode', () async {
+      final controller = ReaderController();
+      await controller.openFile(testFile.path);
+      controller.setViewMode(ViewMode.split);
+
+      await controller.reloadCurrentFile();
+
+      expect(controller.viewMode, ViewMode.split);
+      controller.dispose();
+    });
+
+    test('initialization with valid initialFilePath loads file in ViewMode.rendered', () async {
+      final controller = ReaderController(initialFilePath: testFile.path);
+
+      // Give async openFile time to complete
+      var attempts = 0;
+      while (controller.isLoading && attempts < 50) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        attempts++;
+      }
+
+      expect(controller.currentDocument, isNotNull);
+      expect(controller.currentDocument!.fileName, 'sample.md');
+      expect(controller.viewMode, ViewMode.rendered);
+      controller.dispose();
+    });
+
+    test('initialization with invalid file path falls back to sample document and sets error', () async {
+      final controller = ReaderController(initialFilePath: '/non/existent/file.md');
+
+      var attempts = 0;
+      while (controller.isLoading && attempts < 50) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        attempts++;
+      }
+
+      expect(controller.currentDocument, isNotNull);
+      expect(controller.currentDocument!.fileName, 'Welcome Guide.md');
+      expect(controller.errorMessage, contains('Failed to load file'));
+      controller.dispose();
+    });
+  });
+
+  group('FileOpenService Platform Channel Tests', () {
+    const channel = MethodChannel('com.antigravity.md_reader/file_open');
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+      FileOpenService.resetListenerForTesting();
+    });
+
+    test('getInitialFile returns path from platform channel', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+        if (methodCall.method == 'getInitialFile') {
+          return '/path/to/finder/file.md';
+        }
+        return null;
+      });
+
+      final result = await FileOpenService.getInitialFile();
+      expect(result, '/path/to/finder/file.md');
+    });
+
+    test('getInitialFile returns null when channel returns null or whitespace', () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+        return '   ';
+      });
+
+      final result = await FileOpenService.getInitialFile();
+      expect(result, isNull);
+    });
+
+    test('setFileOpenListener triggers callback on onFileOpened method call', () async {
+      String? openedPath;
+      FileOpenService.setFileOpenListener((filePath) {
+        openedPath = filePath;
+      });
+
+      // Simulate native platform sending onFileOpened
+      const codec = StandardMethodCodec();
+      final data = codec.encodeMethodCall(
+        const MethodCall('onFileOpened', '/users/docs/warm_start.md'),
+      );
+      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage('com.antigravity.md_reader/file_open', data, (_) {});
+
+      expect(openedPath, '/users/docs/warm_start.md');
+    });
+  });
+
+  group('UnsavedChangesDialog Tests', () {
+    testWidgets('shows document names and returns appropriate actions', (WidgetTester tester) async {
+      UnsavedChangesAction? chosenAction;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: ElevatedButton(
+                  onPressed: () async {
+                    chosenAction = await UnsavedChangesDialog.show(
+                      context,
+                      currentDocumentName: 'ActiveDoc.md',
+                      newDocumentName: 'IncomingDoc.md',
+                    );
+                  },
+                  child: const Text('Trigger Dialog'),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+
+      // Open dialog
+      await tester.tap(find.text('Trigger Dialog'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Unsaved Changes'), findsOneWidget);
+      expect(find.textContaining('ActiveDoc.md'), findsOneWidget);
+      expect(find.textContaining('IncomingDoc.md'), findsOneWidget);
+
+      // Tap Cancel
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(chosenAction, UnsavedChangesAction.cancel);
+
+      // Open again and tap Discard Changes
+      await tester.tap(find.text('Trigger Dialog'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Discard Changes'));
+      await tester.pumpAndSettle();
+      expect(chosenAction, UnsavedChangesAction.discard);
+
+      // Open again and tap Save
+      await tester.tap(find.text('Trigger Dialog'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(chosenAction, UnsavedChangesAction.save);
     });
   });
 }
