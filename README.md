@@ -4,13 +4,13 @@ Markdown is cool, but unless you are always in VSC then how to do you read markd
 
 ## Getting Started
 
-This project is primarily optimized for use on macOS desktop because that is where I primarily use mardown files. The other platforms (android, iOS, etc.) will work, but this will not be optimized for them.
+This project is primarily optimized for use on macOS desktop because that is where I primarily use markdown files. The other platforms (android, iOS, etc.) will work, but this will not be optimized for them.
 
 If you want to try this out, it is pretty easy. You'll need to have the XCode and Flutter tool chains installed and functioning properly. Basically that means a "flutter doctor" will come back with an all good.
 
-When you have that, grab the code, go to the proejct root and start it up with "flutter run -d macos" and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
+When you have that, grab the code, go to the project root and start it up with "flutter run -d macos" and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
 
-To build a clean non debug release that can be dropped in your applications directory run this command: 
+To build a clean non debug release that can be dropped in your applications folder on macOS run this command: 
 
 flutter build macos --release
 
