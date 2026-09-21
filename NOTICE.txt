@@ -1,0 +1,9 @@
+Copyright 2026 House of Beor, LLC
+
+House of Beor Markdown
+Copyright 2026 House of Beor, LLC
+
+This product includes software developed at
+House of Beor, LLC (https://www.houseofbeor.net).
+
+The system leverages the Flutter Framework from Google, Inc. 
