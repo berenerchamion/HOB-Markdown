@@ -1,16 +1,14 @@
-# md_reader_2
+# HOB Markdown
 
-A new Flutter project.
+Markdown is cool, but unless you are always in VSC then how to do you documents? How do you edit them, esepecially if they are not related to a software engineering project. That's why I started this project...oh and its free to use. 
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is primarily optimized for use on macOS desktop because that is where I primarily use mardown files. The other platforms will work, but will not be optimized for them.
 
-A few resources to get you started if this is your first Flutter project:
+If you want to try this out, it is pretty easy. You'll need to have the XCode and Flutter tool chains installed and functioning properly. Basically that means a "flutter doctor" will come back with an all good.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+When you have that, grab the code, go to the proejct root and start it up with "flutter run -d macos and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
