@@ -10,7 +10,13 @@ If you want to try this out, it is pretty easy. You'll need to have the XCode an
 
 When you have that, grab the code, go to the project root and start it up with "flutter run -d macos" and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
 
-To build a clean non debug release that can be dropped in your applications folder on macOS run this command: 
+## Doing a Full Build
+
+At this point I don't plan to put this in the app store because I don't feel the need to spend $99 on renewing my developer account. The macOS client is fully configured so that you can drop it into your Applications folder and it will work just like something from the AppStore. 
+
+This will not allow you to distribute it to other folks or they will get the gatekeep warnings and such. You can build and run this on your own laptop with no warnings. 
+
+To build a clean non-debug release that can be dropped in your applications folder on macOS run this command: 
 
 flutter build macos --release
 

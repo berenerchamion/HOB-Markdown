@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:watcher/watcher.dart';
+
 import '../models/document_model.dart';
 import 'markdown_parser_service.dart';
 
@@ -27,7 +29,9 @@ class FileService {
     final wordCount = MarkdownParserService.countWords(content);
     final charCount = MarkdownParserService.countCharacters(content);
     final lineCount = MarkdownParserService.countLines(content);
-    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(wordCount);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
 
     return DocumentModel(
       path: filePath,
@@ -54,7 +58,9 @@ class FileService {
     final wordCount = MarkdownParserService.countWords(content);
     final charCount = MarkdownParserService.countCharacters(content);
     final lineCount = MarkdownParserService.countLines(content);
-    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(wordCount);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
 
     return DocumentModel(
       path: filePath,
@@ -88,7 +94,9 @@ class FileService {
       allowMultiple: false,
     );
 
-    if (result != null && result.files.isNotEmpty && result.files.single.path != null) {
+    if (result != null &&
+        result.files.isNotEmpty &&
+        result.files.single.path != null) {
       return result.files.single.path;
     }
     return null;
@@ -132,9 +140,11 @@ class FileService {
 
   /// Returns the built-in welcome / sample markdown document.
   DocumentModel getSampleDocument() {
-    const sampleContent = '''# ✨ Material Design 3 Markdown Reader
+    const sampleContent = '''# ✨ House of Beor Markdown
 
-Welcome to your modern macOS **Markdown File Viewer** designed with **Material Design 3 (Material You)** aesthetics!
+Welcome to modern and lightweight macOS **House of Beor Markdown** designed with **Material Design 3 (Material You)** aesthetics!
+
+This application is built with Google's Flutter SDK for cross-platform portability. It is optimized for Apple's macOS.
 
 > [!TIP]
 > **Drag and drop** any `.md` or `.markdown` file directly into this window from Finder to open it immediately, or press **⌘ + O** to browse your files.
@@ -238,7 +248,9 @@ def calculate_read_time(word_count: int, wpm: int = 200) -> str:
     final wordCount = MarkdownParserService.countWords(sampleContent);
     final charCount = MarkdownParserService.countCharacters(sampleContent);
     final lineCount = MarkdownParserService.countLines(sampleContent);
-    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(wordCount);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
 
     return DocumentModel(
       path: null,
