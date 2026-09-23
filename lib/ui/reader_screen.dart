@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../models/toc_item.dart';
 import '../state/reader_controller.dart';
 import 'widgets/app_toolbar.dart';
@@ -88,7 +89,10 @@ class _ReaderScreenState extends State<ReaderScreen> {
   int _calculateSearchMatches(String content, String query) {
     if (query.trim().isEmpty) return 0;
     try {
-      return RegExp(RegExp.escape(query), caseSensitive: false).allMatches(content).length;
+      return RegExp(
+        RegExp.escape(query),
+        caseSensitive: false,
+      ).allMatches(content).length;
     } catch (_) {
       return 0;
     }
@@ -107,79 +111,149 @@ class _ReaderScreenState extends State<ReaderScreen> {
             return CallbackShortcuts(
               bindings: <ShortcutActivator, VoidCallback>{
                 // New File: Cmd+N / Ctrl+N
-                const SingleActivator(LogicalKeyboardKey.keyN, meta: true):
-                    () => widget.controller.newDocument(),
-                const SingleActivator(LogicalKeyboardKey.keyN, control: true):
-                    () => widget.controller.newDocument(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyN,
+                  meta: true,
+                ): () =>
+                    widget.controller.newDocument(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyN,
+                  control: true,
+                ): () =>
+                    widget.controller.newDocument(),
 
                 // Open File: Cmd+O / Ctrl+O
-                const SingleActivator(LogicalKeyboardKey.keyO, meta: true):
-                    () => widget.controller.openFilePicker(),
-                const SingleActivator(LogicalKeyboardKey.keyO, control: true):
-                    () => widget.controller.openFilePicker(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyO,
+                  meta: true,
+                ): () =>
+                    widget.controller.openFilePicker(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyO,
+                  control: true,
+                ): () =>
+                    widget.controller.openFilePicker(),
 
                 // Save File: Cmd+S / Ctrl+S
-                const SingleActivator(LogicalKeyboardKey.keyS, meta: true):
-                    () => widget.controller.saveCurrentFile(),
-                const SingleActivator(LogicalKeyboardKey.keyS, control: true):
-                    () => widget.controller.saveCurrentFile(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyS,
+                  meta: true,
+                ): () =>
+                    widget.controller.saveCurrentFile(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyS,
+                  control: true,
+                ): () =>
+                    widget.controller.saveCurrentFile(),
 
                 // Reload: Cmd+R / Ctrl+R
-                const SingleActivator(LogicalKeyboardKey.keyR, meta: true):
-                    () => widget.controller.reloadCurrentFile(),
-                const SingleActivator(LogicalKeyboardKey.keyR, control: true):
-                    () => widget.controller.reloadCurrentFile(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyR,
+                  meta: true,
+                ): () =>
+                    widget.controller.reloadCurrentFile(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyR,
+                  control: true,
+                ): () =>
+                    widget.controller.reloadCurrentFile(),
 
                 // Toggle Sidebar: Cmd+B / Ctrl+B
-                const SingleActivator(LogicalKeyboardKey.keyB, meta: true):
-                    () => _toggleSidebar(isWideScreen),
-                const SingleActivator(LogicalKeyboardKey.keyB, control: true):
-                    () => _toggleSidebar(isWideScreen),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyB,
+                  meta: true,
+                ): () =>
+                    _toggleSidebar(isWideScreen),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyB,
+                  control: true,
+                ): () =>
+                    _toggleSidebar(isWideScreen),
 
                 // Search: Cmd+F / Ctrl+F
-                const SingleActivator(LogicalKeyboardKey.keyF, meta: true):
-                    () => widget.controller.toggleSearching(),
-                const SingleActivator(LogicalKeyboardKey.keyF, control: true):
-                    () => widget.controller.toggleSearching(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyF,
+                  meta: true,
+                ): () =>
+                    widget.controller.toggleSearching(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyF,
+                  control: true,
+                ): () =>
+                    widget.controller.toggleSearching(),
 
                 // Zoom In: Cmd + / Cmd =
-                const SingleActivator(LogicalKeyboardKey.equal, meta: true):
-                    () => widget.controller.zoomIn(),
-                const SingleActivator(LogicalKeyboardKey.equal, control: true):
-                    () => widget.controller.zoomIn(),
+                const SingleActivator(
+                  LogicalKeyboardKey.equal,
+                  meta: true,
+                ): () =>
+                    widget.controller.zoomIn(),
+                const SingleActivator(
+                  LogicalKeyboardKey.equal,
+                  control: true,
+                ): () =>
+                    widget.controller.zoomIn(),
 
                 // Zoom Out: Cmd -
-                const SingleActivator(LogicalKeyboardKey.minus, meta: true):
-                    () => widget.controller.zoomOut(),
-                const SingleActivator(LogicalKeyboardKey.minus, control: true):
-                    () => widget.controller.zoomOut(),
+                const SingleActivator(
+                  LogicalKeyboardKey.minus,
+                  meta: true,
+                ): () =>
+                    widget.controller.zoomOut(),
+                const SingleActivator(
+                  LogicalKeyboardKey.minus,
+                  control: true,
+                ): () =>
+                    widget.controller.zoomOut(),
 
                 // Reset Zoom: Cmd 0
-                const SingleActivator(LogicalKeyboardKey.digit0, meta: true):
-                    () => widget.controller.resetZoom(),
-                const SingleActivator(LogicalKeyboardKey.digit0, control: true):
-                    () => widget.controller.resetZoom(),
+                const SingleActivator(
+                  LogicalKeyboardKey.digit0,
+                  meta: true,
+                ): () =>
+                    widget.controller.resetZoom(),
+                const SingleActivator(
+                  LogicalKeyboardKey.digit0,
+                  control: true,
+                ): () =>
+                    widget.controller.resetZoom(),
 
                 // Theme Toggle: Cmd + T / Ctrl + T
-                const SingleActivator(LogicalKeyboardKey.keyT, meta: true):
-                    () => widget.controller.toggleTheme(),
-                const SingleActivator(LogicalKeyboardKey.keyT, control: true):
-                    () => widget.controller.toggleTheme(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyT,
+                  meta: true,
+                ): () =>
+                    widget.controller.toggleTheme(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyT,
+                  control: true,
+                ): () =>
+                    widget.controller.toggleTheme(),
 
                 // View Modes: Cmd + 1/2/3
-                const SingleActivator(LogicalKeyboardKey.digit1, meta: true):
-                    () => widget.controller.setViewMode(ViewMode.rendered),
-                const SingleActivator(LogicalKeyboardKey.digit2, meta: true):
-                    () => widget.controller.setViewMode(ViewMode.split),
-                const SingleActivator(LogicalKeyboardKey.digit3, meta: true):
-                    () => widget.controller.setViewMode(ViewMode.source),
+                const SingleActivator(
+                  LogicalKeyboardKey.digit1,
+                  meta: true,
+                ): () =>
+                    widget.controller.setViewMode(ViewMode.rendered),
+                const SingleActivator(
+                  LogicalKeyboardKey.digit2,
+                  meta: true,
+                ): () =>
+                    widget.controller.setViewMode(ViewMode.split),
+                const SingleActivator(
+                  LogicalKeyboardKey.digit3,
+                  meta: true,
+                ): () =>
+                    widget.controller.setViewMode(ViewMode.source),
               },
               child: Focus(
                 focusNode: _focusNode,
                 autofocus: true,
                 child: DropTargetZone(
                   onFileDropped: (path) => widget.controller.openFile(path),
-                  onDraggingChanged: (isDragging) => widget.controller.setDragging(isDragging),
+                  onDraggingChanged: (isDragging) =>
+                      widget.controller.setDragging(isDragging),
                   child: Scaffold(
                     key: _scaffoldKey,
                     appBar: AppToolbar(
@@ -211,7 +285,9 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   // Desktop Table of Contents Sidebar
-                                  if (isWideScreen && widget.controller.isSidebarOpen && doc != null)
+                                  if (isWideScreen &&
+                                      widget.controller.isSidebarOpen &&
+                                      doc != null)
                                     TocSidebar(
                                       headings: doc.headings,
                                       onHeadingSelected: _scrollToHeading,
@@ -220,10 +296,14 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                   // Document Area or Empty State
                                   Expanded(
                                     child: widget.controller.isLoading
-                                        ? const Center(child: CircularProgressIndicator())
+                                        ? const Center(
+                                            child: CircularProgressIndicator(),
+                                          )
                                         : doc != null
-                                            ? _buildDocumentView(doc)
-                                            : EmptyStateView(controller: widget.controller),
+                                        ? _buildDocumentView(doc)
+                                        : EmptyStateView(
+                                            controller: widget.controller,
+                                          ),
                                   ),
                                 ],
                               ),
@@ -248,7 +328,8 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                 doc.content,
                                 widget.controller.searchQuery,
                               ),
-                              onSearchChanged: (query) => widget.controller.setSearchQuery(query),
+                              onSearchChanged: (query) =>
+                                  widget.controller.setSearchQuery(query),
                               onClose: () => widget.controller.clearSearch(),
                             ),
                           ),
