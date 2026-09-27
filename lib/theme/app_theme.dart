@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
@@ -126,9 +126,15 @@ class AppTheme {
     final isDark = theme.brightness == Brightness.dark;
     final codeFont = GoogleFonts.jetBrainsMono();
 
-    final Color bodyColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155);
-    final Color headingColor = isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
-    final Color inlineCodeBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9);
+    final Color bodyColor = isDark
+        ? const Color(0xFFCBD5E1)
+        : const Color(0xFF334155);
+    final Color headingColor = isDark
+        ? const Color(0xFFF8FAFC)
+        : const Color(0xFF0F172A);
+    final Color inlineCodeBg = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFF1F5F9);
     final Color blockquoteBar = colorScheme.primary;
     final Color blockquoteBg = isDark
         ? const Color(0xFF1E293B).withValues(alpha: 0.6)
@@ -186,13 +192,8 @@ class AppTheme {
       pPadding: const EdgeInsets.only(bottom: 14),
 
       // Strong / Emphasis
-      strong: TextStyle(
-        fontWeight: FontWeight.w700,
-        color: headingColor,
-      ),
-      em: const TextStyle(
-        fontStyle: FontStyle.italic,
-      ),
+      strong: TextStyle(fontWeight: FontWeight.w700, color: headingColor),
+      em: const TextStyle(fontStyle: FontStyle.italic),
 
       // Links
       a: TextStyle(
@@ -216,16 +217,14 @@ class AppTheme {
         color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
         height: 1.6,
       ),
-      blockquotePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      blockquotePadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
       blockquoteDecoration: BoxDecoration(
         color: blockquoteBg,
         borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
-        border: Border(
-          left: BorderSide(
-            color: blockquoteBar,
-            width: 4,
-          ),
-        ),
+        border: Border(left: BorderSide(color: blockquoteBar, width: 4)),
       ),
 
       // Lists
@@ -239,10 +238,7 @@ class AppTheme {
       // Horizontal Rule
       horizontalRuleDecoration: BoxDecoration(
         border: Border(
-          top: BorderSide(
-            color: colorScheme.outlineVariant,
-            width: 1.5,
-          ),
+          top: BorderSide(color: colorScheme.outlineVariant, width: 1.5),
         ),
       ),
 
@@ -252,17 +248,17 @@ class AppTheme {
         fontWeight: FontWeight.w700,
         color: headingColor,
       ),
-      tableBody: TextStyle(
-        fontSize: 14 * scaleFactor,
-        color: bodyColor,
-      ),
+      tableBody: TextStyle(fontSize: 14 * scaleFactor, color: bodyColor),
       tableHeadAlign: TextAlign.left,
       tableBorder: TableBorder.all(
         color: colorScheme.outlineVariant,
         borderRadius: BorderRadius.circular(8),
         width: 1,
       ),
-      tableCellsPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      tableCellsPadding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 10,
+      ),
     );
   }
 }

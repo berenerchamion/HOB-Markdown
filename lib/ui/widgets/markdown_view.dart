@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../models/document_model.dart';
 import '../../models/toc_item.dart';
 import '../../theme/app_theme.dart';
@@ -30,7 +31,8 @@ class MarkdownView extends StatelessWidget {
         (h) => h.anchor == anchor,
         orElse: () => document.headings.firstWhere(
           (h) => h.title.toLowerCase().replaceAll(' ', '-') == anchor,
-          orElse: () => const TocItem(level: 1, title: '', lineNumber: 0, anchor: ''),
+          orElse: () =>
+              const TocItem(level: 1, title: '', lineNumber: 0, anchor: ''),
         ),
       );
       if (match.title.isNotEmpty) {
@@ -51,7 +53,10 @@ class MarkdownView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final styleSheet = AppTheme.markdownStyleSheet(context, scaleFactor: scaleFactor);
+    final styleSheet = AppTheme.markdownStyleSheet(
+      context,
+      scaleFactor: scaleFactor,
+    );
 
     return SelectionArea(
       child: Center(
@@ -60,7 +65,8 @@ class MarkdownView extends StatelessWidget {
           child: Markdown(
             controller: scrollController,
             data: document.content,
-            selectable: false, // Selection is handled cleanly by outer SelectionArea
+            selectable:
+                false, // Selection is handled cleanly by outer SelectionArea
             styleSheet: styleSheet,
             onTapLink: (text, href, title) => _handleLinkTap(href),
             builders: {
