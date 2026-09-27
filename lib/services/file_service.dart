@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -76,30 +77,60 @@ class FileService {
     );
   }
 
+  /// Builds an updated DocumentModel by reading a file's current stats,
+  /// without writing to it. Use when the content was already written
+  /// elsewhere (e.g. by the save-file picker itself).
+  Future<DocumentModel> buildDocumentModelFromDisk(
+    String filePath,
+    String content,
+  ) async {
+    final file = File(filePath);
+    final stat = await file.stat();
+    final fileName = p.basename(filePath);
+
+    final headings = MarkdownParserService.extractHeadings(content);
+    final wordCount = MarkdownParserService.countWords(content);
+    final charCount = MarkdownParserService.countCharacters(content);
+    final lineCount = MarkdownParserService.countLines(content);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
+
+    return DocumentModel(
+      path: filePath,
+      fileName: fileName,
+      content: content,
+      byteSize: stat.size,
+      headings: headings,
+      wordCount: wordCount,
+      charCount: charCount,
+      lineCount: lineCount,
+      readingTimeMinutes: readingTime,
+      lastModified: stat.modified,
+    );
+  }
+
   /// Prompts user to pick a save location for a new file.
-  Future<String?> pickSavePath({String suggestedName = 'document.md'}) async {
-    return await FilePicker.platform.saveFile(
+  Future<String?> pickSavePath({
+    String suggestedName = 'document.md',
+    required String content,
+  }) async {
+    final uri = await FilePicker.saveFile(
       dialogTitle: 'Save Markdown File',
       fileName: suggestedName,
       type: FileType.custom,
       allowedExtensions: ['md', 'markdown', 'txt'],
+      bytes: Uint8List.fromList(utf8.encode(content)),
     );
+    return uri?.toFilePath();
   }
 
   /// Opens the native OS file picker to select a markdown file.
   Future<String?> pickMarkdownFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
+    final file = await FilePicker.pickFile(
       allowedExtensions: ['md', 'markdown', 'mdown', 'mkd', 'txt', 'text'],
-      allowMultiple: false,
     );
-
-    if (result != null &&
-        result.files.isNotEmpty &&
-        result.files.single.path != null) {
-      return result.files.single.path;
-    }
-    return null;
+    return file?.path;
   }
 
   /// Watches a file for changes with debouncing to support auto-reload.

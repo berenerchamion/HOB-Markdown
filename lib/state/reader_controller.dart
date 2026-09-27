@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../models/document_model.dart';
 import '../services/file_service.dart';
 import '../services/markdown_parser_service.dart';
 
-enum ViewMode {
-  rendered,
-  split,
-  source,
-}
+enum ViewMode { rendered, split, source }
 
 class ReaderController extends ChangeNotifier {
   final FileService _fileService = FileService();
@@ -52,13 +49,16 @@ class ReaderController extends ChangeNotifier {
   }
 
   void updateContent(String newContent) {
-    if (_currentDocument == null || _currentDocument!.content == newContent) return;
+    if (_currentDocument == null || _currentDocument!.content == newContent)
+      return;
 
     final headings = MarkdownParserService.extractHeadings(newContent);
     final wordCount = MarkdownParserService.countWords(newContent);
     final charCount = MarkdownParserService.countCharacters(newContent);
     final lineCount = MarkdownParserService.countLines(newContent);
-    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(wordCount);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
 
     _currentDocument = _currentDocument!.copyWith(
       content: newContent,
@@ -103,9 +103,15 @@ class ReaderController extends ChangeNotifier {
       final suggested = _currentDocument!.fileName.endsWith('.md')
           ? _currentDocument!.fileName
           : '${_currentDocument!.fileName}.md';
-      final path = await _fileService.pickSavePath(suggestedName: suggested);
+      final path = await _fileService.pickSavePath(
+        suggestedName: suggested,
+        content: _currentDocument!.content,
+      );
       if (path != null) {
-        final savedDoc = await _fileService.saveFile(path, _currentDocument!.content);
+        final savedDoc = await _fileService.buildDocumentModelFromDisk(
+          path,
+          _currentDocument!.content,
+        );
         _currentDocument = savedDoc;
         _isDirty = false;
 
@@ -278,12 +284,15 @@ class ReaderController extends ChangeNotifier {
     _fileService.stopWatchingFile();
     _errorMessage = null;
     _isDirty = false;
-    const initialContent = '# Untitled Document\n\nStart typing your markdown here...\n';
+    const initialContent =
+        '# Untitled Document\n\nStart typing your markdown here...\n';
     final headings = MarkdownParserService.extractHeadings(initialContent);
     final wordCount = MarkdownParserService.countWords(initialContent);
     final charCount = MarkdownParserService.countCharacters(initialContent);
     final lineCount = MarkdownParserService.countLines(initialContent);
-    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(wordCount);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
 
     _currentDocument = DocumentModel(
       path: null,
