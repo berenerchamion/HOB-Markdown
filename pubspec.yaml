@@ -39,7 +39,7 @@ dependencies:
   flutter_highlight: ^0.7.0
   desktop_drop: ^0.8.0
   file_picker: ^13.1.0
-  google_fonts: ^6.2.1
+  google_fonts: ^8.2.1
   url_launcher: ^6.3.1
   path: ^1.9.0
   watcher: ^1.1.0
