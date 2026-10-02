@@ -85,6 +85,7 @@ flutter:
   assets:
     - assets/LICENSE-2.0.txt
     - assets/icon/master_icon.png
+    - assets/welcome_guide.md
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -22,8 +22,10 @@ class ReaderController extends ChangeNotifier {
   bool _isSearching = false;
   String _searchQuery = '';
   bool _isDirty = false;
+  bool _isHelpWindowOpen = false;
 
   // Getters
+  FileService get fileService => _fileService;
   DocumentModel? get currentDocument => _currentDocument;
   ViewMode get viewMode => _viewMode;
   bool get isLoading => _isLoading;
@@ -37,6 +39,7 @@ class ReaderController extends ChangeNotifier {
   bool get isSearching => _isSearching;
   String get searchQuery => _searchQuery;
   bool get isDirty => _isDirty;
+  bool get isHelpWindowOpen => _isHelpWindowOpen;
   bool get hasDocument => _currentDocument != null;
 
   ReaderController({String? initialFilePath}) {
@@ -49,8 +52,9 @@ class ReaderController extends ChangeNotifier {
   }
 
   void updateContent(String newContent) {
-    if (_currentDocument == null || _currentDocument!.content == newContent)
+    if (_currentDocument == null || _currentDocument!.content == newContent) {
       return;
+    }
 
     final headings = MarkdownParserService.extractHeadings(newContent);
     final wordCount = MarkdownParserService.countWords(newContent);
@@ -317,6 +321,25 @@ class ReaderController extends ChangeNotifier {
     _errorMessage = null;
     _isDirty = false;
     _currentDocument = _fileService.getSampleDocument();
+    notifyListeners();
+  }
+
+  void showHelpWindow() {
+    if (!_isHelpWindowOpen) {
+      _isHelpWindowOpen = true;
+      notifyListeners();
+    }
+  }
+
+  void hideHelpWindow() {
+    if (_isHelpWindowOpen) {
+      _isHelpWindowOpen = false;
+      notifyListeners();
+    }
+  }
+
+  void toggleHelpWindow() {
+    _isHelpWindowOpen = !_isHelpWindowOpen;
     notifyListeners();
   }
 

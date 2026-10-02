@@ -246,7 +246,7 @@ class AppMenuBar extends StatelessWidget {
           menus: <PlatformMenuItem>[
             PlatformMenuItem(
               label: 'Welcome Guide & Shortcuts',
-              onSelected: () => controller.loadSampleDocument(),
+              onSelected: () => controller.showHelpWindow(),
             ),
           ],
         ),

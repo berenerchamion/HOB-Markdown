@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hob_markdown_reader/services/file_open_service.dart';
+import 'package:hob_markdown_reader/services/file_service.dart';
 import 'package:hob_markdown_reader/services/markdown_parser_service.dart';
 import 'package:hob_markdown_reader/state/reader_controller.dart';
 import 'package:hob_markdown_reader/theme/app_theme.dart';
 import 'package:hob_markdown_reader/ui/reader_screen.dart';
 import 'package:hob_markdown_reader/ui/widgets/empty_state_view.dart';
+import 'package:hob_markdown_reader/ui/widgets/floating_help_window.dart';
 import 'package:hob_markdown_reader/ui/widgets/markdown_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/raw_markdown_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/split_view.dart';
@@ -170,6 +172,30 @@ Setext Level 2
       expect(controller.searchQuery, '');
       expect(controller.isSearching, false);
     });
+
+    test('showHelpWindow, hideHelpWindow, and toggleHelpWindow manage help window state', () {
+      expect(controller.isHelpWindowOpen, false);
+      controller.showHelpWindow();
+      expect(controller.isHelpWindowOpen, true);
+      controller.hideHelpWindow();
+      expect(controller.isHelpWindowOpen, false);
+      controller.toggleHelpWindow();
+      expect(controller.isHelpWindowOpen, true);
+      controller.toggleHelpWindow();
+      expect(controller.isHelpWindowOpen, false);
+    });
+
+    test('FileService loads welcome guide asset and builds document', () async {
+      final fileService = FileService();
+      final content = await fileService.loadWelcomeGuideContent();
+      expect(content, contains('# ✨ House of Beor Markdown'));
+      expect(content, contains('## ⌨️ macOS Keyboard Shortcuts'));
+
+      final doc = fileService.getSampleDocument();
+      expect(doc.fileName, 'Welcome Guide.md');
+      expect(doc.content, contains('# ✨ House of Beor Markdown'));
+      expect(doc.headings.isNotEmpty, true);
+    });
   });
 
   group('Widget UI Tests', () {
@@ -241,6 +267,56 @@ Setext Level 2
       expect(find.text('New File'), findsOneWidget);
       expect(find.text('Open File'), findsOneWidget);
       expect(find.text('Welcome Guide'), findsOneWidget);
+
+      controller.dispose();
+    });
+
+    testWidgets('shows and closes FloatingHelpWindow without replacing active document', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final controller = ReaderController();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme(),
+          home: ReaderScreen(controller: controller),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FloatingHelpWindow), findsNothing);
+
+      // Open Help window
+      controller.showHelpWindow();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FloatingHelpWindow), findsOneWidget);
+      expect(find.text('Welcome Guide & Shortcuts'), findsOneWidget);
+
+      // Active document remains open and intact underneath
+      expect(controller.currentDocument, isNotNull);
+      expect(controller.currentDocument!.fileName, 'Welcome Guide.md');
+
+      // Minimize window
+      await tester.tap(find.byTooltip('Minimize'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Expand'), findsOneWidget);
+
+      // Expand window back
+      await tester.tap(find.byTooltip('Expand'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Minimize'), findsOneWidget);
+
+      // Close floating window via close button
+      await tester.tap(find.byTooltip('Close'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FloatingHelpWindow), findsNothing);
+      expect(controller.isHelpWindowOpen, false);
+      expect(controller.currentDocument, isNotNull);
 
       controller.dispose();
     });

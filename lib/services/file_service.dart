@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as p;
 import 'package:watcher/watcher.dart';
 
@@ -169,9 +170,72 @@ class FileService {
     _currentlyWatchedPath = null;
   }
 
-  /// Returns the built-in welcome / sample markdown document.
+  /// Path to the bundled welcome guide asset.
+  static const String welcomeGuideAssetPath = 'assets/welcome_guide.md';
+
+  /// Builds a [DocumentModel] from raw markdown content.
+  DocumentModel buildDocumentFromContent({
+    required String content,
+    String fileName = 'Welcome Guide.md',
+    String? path,
+  }) {
+    final headings = MarkdownParserService.extractHeadings(content);
+    final wordCount = MarkdownParserService.countWords(content);
+    final charCount = MarkdownParserService.countCharacters(content);
+    final lineCount = MarkdownParserService.countLines(content);
+    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
+      wordCount,
+    );
+
+    return DocumentModel(
+      path: path,
+      fileName: fileName,
+      content: content,
+      byteSize: content.length,
+      headings: headings,
+      wordCount: wordCount,
+      charCount: charCount,
+      lineCount: lineCount,
+      readingTimeMinutes: readingTime,
+      lastModified: DateTime.now(),
+    );
+  }
+
+  /// Loads the welcome guide markdown text from asset or disk fallback.
+  Future<String> loadWelcomeGuideContent() async {
+    try {
+      return await rootBundle.loadString(welcomeGuideAssetPath);
+    } catch (_) {
+      try {
+        final file = File(welcomeGuideAssetPath);
+        if (await file.exists()) {
+          return await file.readAsString();
+        }
+      } catch (_) {}
+      return _fallbackSampleContent;
+    }
+  }
+
+  /// Returns the built-in welcome / sample markdown document synchronously.
   DocumentModel getSampleDocument() {
-    const sampleContent = '''# ✨ House of Beor Markdown
+    String sampleContent = _fallbackSampleContent;
+    try {
+      final file = File(welcomeGuideAssetPath);
+      if (file.existsSync()) {
+        sampleContent = file.readAsStringSync();
+      }
+    } catch (_) {}
+
+    return buildDocumentFromContent(content: sampleContent);
+  }
+
+  /// Asynchronously loads the sample document from the asset bundle.
+  Future<DocumentModel> loadSampleDocument() async {
+    final content = await loadWelcomeGuideContent();
+    return buildDocumentFromContent(content: content);
+  }
+
+  static const String _fallbackSampleContent = '''# ✨ House of Beor Markdown
 
 Welcome to modern and lightweight macOS **House of Beor Markdown** designed with **Material Design 3 (Material You)** aesthetics!
 
@@ -274,28 +338,6 @@ def calculate_read_time(word_count: int, wpm: int = 200) -> str:
 
 *Enjoy reading and editing your Markdown files!*
 ''';
-
-    final headings = MarkdownParserService.extractHeadings(sampleContent);
-    final wordCount = MarkdownParserService.countWords(sampleContent);
-    final charCount = MarkdownParserService.countCharacters(sampleContent);
-    final lineCount = MarkdownParserService.countLines(sampleContent);
-    final readingTime = MarkdownParserService.calculateReadingTimeMinutes(
-      wordCount,
-    );
-
-    return DocumentModel(
-      path: null,
-      fileName: 'Welcome Guide.md',
-      content: sampleContent,
-      byteSize: sampleContent.length,
-      headings: headings,
-      wordCount: wordCount,
-      charCount: charCount,
-      lineCount: lineCount,
-      readingTimeMinutes: readingTime,
-      lastModified: DateTime.now(),
-    );
-  }
 
   void dispose() {
     stopWatchingFile();
