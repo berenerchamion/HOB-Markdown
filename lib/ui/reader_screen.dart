@@ -7,7 +7,7 @@ import 'widgets/app_toolbar.dart';
 import 'widgets/document_status_bar.dart';
 import 'widgets/drop_target_zone.dart';
 import 'widgets/empty_state_view.dart';
-import 'widgets/floating_help_window.dart';
+import 'widgets/help_panel.dart';
 import 'widgets/markdown_view.dart';
 import 'widgets/raw_markdown_view.dart';
 import 'widgets/search_bar_overlay.dart';
@@ -306,6 +306,11 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                             controller: widget.controller,
                                           ),
                                   ),
+                                  // Help panel, docked on the right
+                                  HelpPanel(
+                                    controller: widget.controller,
+                                    isOpen: widget.controller.isHelpWindowOpen,
+                                  ),
                                 ],
                               ),
                             ),
@@ -333,12 +338,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                   widget.controller.setSearchQuery(query),
                               onClose: () => widget.controller.clearSearch(),
                             ),
-                          ),
-
-                        // Floating Welcome Guide & Shortcuts Window
-                        if (widget.controller.isHelpWindowOpen)
-                          FloatingHelpWindow(
-                            controller: widget.controller,
                           ),
                       ],
                     ),

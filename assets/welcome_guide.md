@@ -1,11 +1,13 @@
 # ✨ House of Beor Markdown
 
-Welcome to modern and lightweight macOS **House of Beor Markdown** designed with **Material Design 3 (Material You)** aesthetics!
+Welcome to modern and lightweight macOS **House of Beor Markdown** designed with **Material Design 3 (Material You)** aesthetics! This app is designed to be lean, fast, and single-purpose: **writing and reading markdown files**.
 
 This application is built with Google's Flutter SDK for cross-platform portability. It is optimized for Apple's macOS.
 
+House of Beor, LLC is a small technology company based in Eastern Pennsylvania. We play around with lots of software engineering tools, AI/ML tools, lots of other tech, but we do not always have an IDE open. So having a dedicated Markdown file reader and editor was useful for us.  We hope it is useful for you too.
+
 > [!TIP]
-> **Drag and drop** any `.md` or `.markdown` file directly into this window from Finder to open it immediately, or press **⌘ + O** to browse your files.
+> **Drag and drop** any .md or .markdown file directly into this window from Finder to open it immediately, or press **⌘ + O** to browse your files. You can also right click a markdown file and use the menu to open it. 
 
 ---
 
@@ -13,7 +15,7 @@ This application is built with Google's Flutter SDK for cross-platform portabili
 
 * **macOS Drag & Drop**: Drop markdown files anywhere on the app.
 * **Material Design 3**: Modern color tokens, tonal elevation, and smooth typography.
-* **Auto-Reload**: Automatically detects and reloads when your file is saved in external editors (VS Code, Obsidian, etc.).
+* **Auto-Reload**: Automatically detects and reloads when your file is saved in external editors (HOB Markdown, VS Code, Obsidian, etc.).
 * **Table of Contents (TOC)**: Collapsible sidebar with heading hierarchy and smooth scroll navigation.
 * **Multi-View Modes**: Switch between **Rendered View**, **Split View**, and **Raw Source**.
 * **Rich Code Highlighting**: Syntax-highlighted code blocks with 1-click copy action.
