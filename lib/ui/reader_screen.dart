@@ -306,11 +306,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                             controller: widget.controller,
                                           ),
                                   ),
-                                  // Help panel, docked on the right
-                                  HelpPanel(
-                                    controller: widget.controller,
-                                    isOpen: widget.controller.isHelpWindowOpen,
-                                  ),
                                 ],
                               ),
                             ),
@@ -339,6 +334,14 @@ class _ReaderScreenState extends State<ReaderScreen> {
                               onClose: () => widget.controller.clearSearch(),
                             ),
                           ),
+
+                        // Slide-over Help Panel Overlay
+                        Positioned.fill(
+                          child: HelpPanel(
+                            controller: widget.controller,
+                            isOpen: widget.controller.isHelpWindowOpen,
+                          ),
+                        ),
                       ],
                     ),
                   ),

@@ -9,7 +9,7 @@ import 'package:hob_markdown_reader/state/reader_controller.dart';
 import 'package:hob_markdown_reader/theme/app_theme.dart';
 import 'package:hob_markdown_reader/ui/reader_screen.dart';
 import 'package:hob_markdown_reader/ui/widgets/empty_state_view.dart';
-import 'package:hob_markdown_reader/ui/widgets/floating_help_window.dart';
+import 'package:hob_markdown_reader/ui/widgets/help_panel.dart';
 import 'package:hob_markdown_reader/ui/widgets/markdown_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/raw_markdown_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/split_view.dart';
@@ -271,7 +271,7 @@ Setext Level 2
       controller.dispose();
     });
 
-    testWidgets('shows and closes FloatingHelpWindow without replacing active document', (WidgetTester tester) async {
+    testWidgets('shows and closes HelpPanel without replacing active document', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -287,34 +287,23 @@ Setext Level 2
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(FloatingHelpWindow), findsNothing);
+      expect(controller.isHelpWindowOpen, false);
 
       // Open Help window
       controller.showHelpWindow();
       await tester.pumpAndSettle();
 
-      expect(find.byType(FloatingHelpWindow), findsOneWidget);
+      expect(find.byType(HelpPanel), findsOneWidget);
       expect(find.text('Welcome Guide & Shortcuts'), findsOneWidget);
 
       // Active document remains open and intact underneath
       expect(controller.currentDocument, isNotNull);
       expect(controller.currentDocument!.fileName, 'Welcome Guide.md');
 
-      // Minimize window
-      await tester.tap(find.byTooltip('Minimize'));
-      await tester.pumpAndSettle();
-      expect(find.byTooltip('Expand'), findsOneWidget);
-
-      // Expand window back
-      await tester.tap(find.byTooltip('Expand'));
-      await tester.pumpAndSettle();
-      expect(find.byTooltip('Minimize'), findsOneWidget);
-
-      // Close floating window via close button
+      // Close help panel via close button
       await tester.tap(find.byTooltip('Close'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(FloatingHelpWindow), findsNothing);
       expect(controller.isHelpWindowOpen, false);
       expect(controller.currentDocument, isNotNull);
 
