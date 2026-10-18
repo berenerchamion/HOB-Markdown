@@ -264,6 +264,8 @@ This application is built with Google's Flutter SDK for cross-platform portabili
 | Shortcut | Action |
 | :--- | :--- |
 | **⌘ + O** | Open file dialog |
+| **⌘ + S** | Save file |
+| **⌘ + P** | Print rendered document |
 | **⌘ + R** | Reload current file |
 | **⌘ + B** | Toggle Table of Contents sidebar |
 | **⌘ + T** | Toggle Light / Dark theme |

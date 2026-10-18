@@ -147,6 +147,18 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 ): () =>
                     widget.controller.saveCurrentFile(),
 
+                // Print Document: Cmd+P / Ctrl+P
+                const SingleActivator(
+                  LogicalKeyboardKey.keyP,
+                  meta: true,
+                ): () =>
+                    widget.controller.printDocument(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyP,
+                  control: true,
+                ): () =>
+                    widget.controller.printDocument(),
+
                 // Reload: Cmd+R / Ctrl+R
                 const SingleActivator(
                   LogicalKeyboardKey.keyR,

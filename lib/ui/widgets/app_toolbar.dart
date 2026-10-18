@@ -132,6 +132,15 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
                     onPressed: () => controller.saveCurrentFile(),
                   ),
           ),
+
+        // Print Button (⌘P)
+        if (doc != null)
+          IconButton(
+            icon: const Icon(Icons.print_outlined, size: 20),
+            tooltip: 'Print rendered document (⌘P)',
+            onPressed: () => controller.printDocument(),
+          ),
+
         // Search Button
         if (doc != null)
           IconButton(

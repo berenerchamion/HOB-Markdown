@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../models/document_model.dart';
 import '../services/file_service.dart';
 import '../services/markdown_parser_service.dart';
+import '../services/print_service.dart';
 
 enum ViewMode { rendered, split, source }
 
 class ReaderController extends ChangeNotifier {
-  final FileService _fileService = FileService();
+  final FileService _fileService;
+  final PrintService _printService;
 
   DocumentModel? _currentDocument;
   ViewMode _viewMode = ViewMode.rendered;
@@ -26,6 +28,7 @@ class ReaderController extends ChangeNotifier {
 
   // Getters
   FileService get fileService => _fileService;
+  PrintService get printService => _printService;
   DocumentModel? get currentDocument => _currentDocument;
   ViewMode get viewMode => _viewMode;
   bool get isLoading => _isLoading;
@@ -42,7 +45,12 @@ class ReaderController extends ChangeNotifier {
   bool get isHelpWindowOpen => _isHelpWindowOpen;
   bool get hasDocument => _currentDocument != null;
 
-  ReaderController({String? initialFilePath}) {
+  ReaderController({
+    String? initialFilePath,
+    FileService? fileService,
+    PrintService? printService,
+  })  : _fileService = fileService ?? FileService(),
+        _printService = printService ?? const PrintService() {
     if (initialFilePath != null) {
       openFile(initialFilePath);
     } else {
@@ -341,6 +349,20 @@ class ReaderController extends ChangeNotifier {
   void toggleHelpWindow() {
     _isHelpWindowOpen = !_isHelpWindowOpen;
     notifyListeners();
+  }
+
+  /// Prints the rendered Markdown document using the operating system's
+  /// native print function.
+  Future<void> printDocument() async {
+    final doc = _currentDocument;
+    if (doc == null) return;
+
+    try {
+      await _printService.printDocument(doc);
+    } catch (e) {
+      _errorMessage = 'Failed to print document: $e';
+      notifyListeners();
+    }
   }
 
   void clearDocument() {

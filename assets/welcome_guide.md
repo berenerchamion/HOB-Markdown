@@ -29,6 +29,8 @@ House of Beor, LLC is a small technology company based in Eastern Pennsylvania. 
 | Shortcut | Action |
 | :--- | :--- |
 | **⌘ + O** | Open file dialog |
+| **⌘ + S** | Save file |
+| **⌘ + P** | Print rendered document |
 | **⌘ + R** | Reload current file |
 | **⌘ + B** | Toggle Table of Contents sidebar |
 | **⌘ + T** | Toggle Light / Dark theme |
