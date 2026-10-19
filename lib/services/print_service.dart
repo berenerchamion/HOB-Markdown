@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:htmltopdfwidgets/htmltopdfwidgets.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../models/document_model.dart';
@@ -164,11 +166,10 @@ class PrintService {
       return await Printing.layoutPdf(
         name: document.fileName,
         onLayout: (PdfPageFormat format) async {
-          // ignore: deprecated_member_use
-          return await Printing.convertHtml(
-            format: format,
-            html: html,
-          );
+          final pdf = pw.Document();
+          final widgets = await (HTMLToPdf().convert(html));
+          pdf.addPage(pw.MultiPage(build: (context) => widgets));
+          return await pdf.save();
         },
       );
     } catch (e) {
