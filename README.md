@@ -12,9 +12,11 @@ When you have that, grab the code, go to the project root and start it up with "
 
 ## Doing a Full Build
 
-At this point I don't plan to put this in the app store because I don't feel the need to spend $99 on renewing my developer account. The macOS client is fully configured so that you can drop it into your Applications folder and it will work just like something from the AppStore. 
+At this point I don't plan to put this in the app store because I don't feel the need to spend $99 on renewing my developer account. The macOS client is fully configured so that you can build it locally and then drop it into your Applications folder and it will work just like something from the AppStore. 
 
-This will not allow you to distribute it to other folks or they will get the gatekeep warnings and such. You can build and run this on your own laptop with no warnings. 
+This will not allow you to distribute it to other folks or they will get the gatekeeper warnings and such. Building this locally allows you to run this onyour own computer with no warnings. 
+
+Obviosuly you will need to have XCode installed along with the command line tools and also have the Flutter SDK installed and configured properly (flutter doctor returns no errors).
 
 To build a clean non-debug release that can be dropped in your applications folder on macOS run this command: 
 
