@@ -2,9 +2,11 @@
 
 Markdown is cool, but unless you are always in VSC then how to do you read markdown files? How do you edit them, esepecially if they are not related to a software engineering project? That's why I started this project...oh and its free to use so you can save some cash for beer instead.
 
+I created and edited this file in the HOB Markdown app!! 
+
 ## Getting Started
 
-This project is primarily optimized for use on macOS desktop because that is where I primarily use markdown files. The other platforms (android, iOS, etc.) will work, but this will not be optimized for them.
+This project is primarily optimized for use on macOS desktop because that is where I primarily use markdown files. The other platforms (Linux, android, iOS, Windows, etc.) will work, but this will not be optimized for them.
 
 If you want to try this out, it is pretty easy. You'll need to have the XCode and Flutter tool chains installed and functioning properly. Basically that means a "flutter doctor" will come back with an all good.
 
@@ -14,15 +16,15 @@ When you have that, grab the code, go to the project root and start it up with "
 
 At this point I don't plan to put this in the app store because I don't feel the need to spend $99 on renewing my developer account. The macOS client is fully configured so that you can build it locally and then drop it into your Applications folder and it will work just like something from the AppStore. 
 
-This will not allow you to distribute it to other folks or they will get the gatekeeper warnings and such. Building this locally allows you to run this onyour own computer with no warnings. 
+This will not allow you to distribute it to other folks or they will get the gatekeeper warnings and such. Building this locally allows you to run this on your own computer with no warnings. 
 
 Obviosuly you will need to have XCode installed along with the command line tools and also have the Flutter SDK installed and configured properly (flutter doctor returns no errors).
 
-To build a clean non-debug release that can be dropped in your applications folder on macOS run this command: 
+To build a clean non-debug release that can be dropped in your applications folder, download the code and then on macOS run this command: 
 
 flutter build macos --release
 
-The release will be quite a bit smaller. It is configured to be a an option on the macOS menus to auto-open Markdown files if you like. 
+The release will be quite a bit smaller than a debug release. It is configured to be a an option on the macOS menus to auto-open Markdown files. You can set it as the default if you like. 
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
