@@ -56,30 +56,6 @@ class AppMenuBar extends StatelessWidget {
               },
             ),
             if (PlatformProvidedMenuItem.hasMenu(
-              PlatformProvidedMenuItemType.servicesSubmenu,
-            ))
-              const PlatformProvidedMenuItem(
-                type: PlatformProvidedMenuItemType.servicesSubmenu,
-              ),
-            if (PlatformProvidedMenuItem.hasMenu(
-              PlatformProvidedMenuItemType.hide,
-            ))
-              const PlatformProvidedMenuItem(
-                type: PlatformProvidedMenuItemType.hide,
-              ),
-            if (PlatformProvidedMenuItem.hasMenu(
-              PlatformProvidedMenuItemType.hideOtherApplications,
-            ))
-              const PlatformProvidedMenuItem(
-                type: PlatformProvidedMenuItemType.hideOtherApplications,
-              ),
-            if (PlatformProvidedMenuItem.hasMenu(
-              PlatformProvidedMenuItemType.showAllApplications,
-            ))
-              const PlatformProvidedMenuItem(
-                type: PlatformProvidedMenuItemType.showAllApplications,
-              ),
-            if (PlatformProvidedMenuItem.hasMenu(
               PlatformProvidedMenuItemType.quit,
             ))
               const PlatformProvidedMenuItem(
