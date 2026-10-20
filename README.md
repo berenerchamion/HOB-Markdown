@@ -24,7 +24,7 @@ To build a clean non-debug release that can be dropped in your applications fold
 
 flutter build macos --release
 
-The release will be quite a bit smaller than a debug release. It is configured to be a an option on the macOS menus to auto-open Markdown files. You can set it as the default if you like. 
+The release will be quite a bit smaller than a debug release - should be around 28MB in size. It is configured to be a an option on the macOS menus to auto-open Markdown files. You can set it as the default if you like. 
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
