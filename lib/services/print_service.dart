@@ -3,6 +3,7 @@ import 'package:htmltopdfwidgets/htmltopdfwidgets.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/document_model.dart';
 
@@ -157,17 +158,60 @@ class PrintService {
 ''';
   }
 
-  /// Sends the rendered HTML to the operating system's native print dialog.
+  Future<pw.Font> _loadFont(String asset) async =>
+      pw.Font.ttf(await rootBundle.load(asset));
+
+  //Sends the formatted docutment to the printer after making adjustments for available fonts.
   Future<bool> printDocument(DocumentModel document) async {
-    final html = generateHtml(document);
+    // U+FE0F is an invisible emoji-presentation selector; no font draws it.
+    final html = generateHtml(document).replaceAll('\uFE0F', '');
+
+    final regular = await _loadFont('assets/fonts/NotoSans-Regular.ttf');
+    final bold = await _loadFont('assets/fonts/NotoSans-Bold.ttf');
+    final italic = await _loadFont('assets/fonts/NotoSans-Italic.ttf');
+    final boldItalic = await _loadFont('assets/fonts/NotoSans-BoldItalic.ttf');
+    final mono = await _loadFont('assets/fonts/NotoSansMono-Regular.ttf');
+    final symbols = await _loadFont(
+      'assets/fonts/NotoSansSymbols2-Regular.ttf',
+    );
+    final emoji = await _loadFont('assets/fonts/NotoEmoji-Regular.ttf');
+    final fallback = [symbols, emoji];
 
     try {
       return await Printing.layoutPdf(
         name: document.fileName,
         onLayout: (PdfPageFormat format) async {
           final pdf = pw.Document();
-          final widgets = await (HTMLToPdf().convert(html));
-          pdf.addPage(pw.MultiPage(build: (context) => widgets));
+          final widgets = await HTMLToPdf().convert(
+            html,
+            fontFallback: fallback,
+            fontResolver: (family, isBold, isItalic) {
+              debugPrint(
+                'font requested: $family bold=$isBold italic=$isItalic',
+              );
+              if (family.toLowerCase().contains('mono') ||
+                  family.toLowerCase().contains('courier')) {
+                return mono;
+              }
+              if (isBold && isItalic) return boldItalic;
+              if (isBold) return bold;
+              if (isItalic) return italic;
+              return regular;
+            },
+          );
+          pdf.addPage(
+            pw.MultiPage(
+              pageFormat: format,
+              theme: pw.ThemeData.withFont(
+                base: regular,
+                bold: bold,
+                italic: italic,
+                boldItalic: boldItalic,
+                fontFallback: fallback,
+              ),
+              build: (context) => widgets,
+            ),
+          );
           return await pdf.save();
         },
       );

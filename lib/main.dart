@@ -17,6 +17,11 @@ void main(List<String> args) async {
     yield LicenseEntryWithLineBreaks(['House of Beor Markdown'], license);
   });
 
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['Open Font License'], license);
+  });
+
   String? initialFilePath;
   try {
     initialFilePath = await FileOpenService.getInitialFile();
@@ -119,4 +124,3 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
     );
   }
 }
-
