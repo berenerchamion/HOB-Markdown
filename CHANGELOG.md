@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-10-25
+- Updated the README.md with more details on usage 
+- Added CHANGELOG.md (this file) so that there is a running list of big changes
+
 ## [1.1.0] - 2026-10-25
 
 ### Added

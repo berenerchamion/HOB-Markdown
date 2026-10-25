@@ -1,6 +1,6 @@
 # HOB Markdown
 
-Markdown is cool, but unless you are always in VSC then how to do you read markdown files? How do you edit them, esepecially if they are not related to a software engineering project? That's why I started this project...oh and its free to use so you can save some cash for beer instead.
+Markdown is cool, but unless you are always in Visual Studio Code (VSC) then how do you read and edit markdown files? Especially if they are not related to a software engineering project. Today I am using .md files outside of software engineering projects all the time - for example for creative writing and interacting with AI solutions. That's why I started this project...oh and its free to use so you can save some cash for beer instead.
 
 I created and edited this file in the HOB Markdown app!! 
 
@@ -12,9 +12,23 @@ If you want to try this out, it is pretty easy. You'll need to have the XCode an
 
 When you have that, grab the code, go to the project root and start it up with "flutter run -d macos" and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
 
+If you open an .md file in HOB Markdown that is not UTF-8, it will be converted to UTF-8, which normally should not cause any issues, but just be aware of this. 
+
+Printing of most charaters, emojis, and things like this are supported by HOB Markdown, but it is possible that some icons or emoji's are not in the fonts that are included in HOB Markdown. This is simnply a size thing - to kepp the app small and not bloat it up with too many fonts. If you find something that doesn't print, it is likely not a bug in the app, but rather an issue with the fonts. 
+
+## Using HOB Markdown
+
+HOB Markdown will work just like many editors. Open it from teh Applications folder and you get some default donctent. File New on the menu will clear that out. 
+
+Right click on an existing .md file and select "Open With" and then select HOB Markdown and it will load that right up. Or you can drag and drop an .md file into the current window and it will replace the document in the same window. 
+
+If you configure HOB Markdown as the default markdown application then you can just double click an .md file and it will open it in a new window. This behavior is intentional! Double-click to open a new window...drag and drop to use the current window. 
+
+There is help available from the Help menu for those not familiar with Markdown's markup tags. 
+
 ## Doing a Full Build
 
-At this point I don't plan to put this in the app store because I don't feel the need to spend $99 on renewing my developer account. The macOS client is fully configured so that you can build it locally and then drop it into your Applications folder and it will work just like something from the AppStore. 
+At this point I don't plan to put this in the app store because I don't feel the need to spend $99 on renewing my Apple developer account. The macOS client is fully configured so that you can build it locally and then drop it into your Applications folder and it will work just like something from the AppStore. 
 
 This will not allow you to distribute it to other folks or they will get the gatekeeper warnings and such. Building this locally allows you to run this on your own computer with no warnings. 
 

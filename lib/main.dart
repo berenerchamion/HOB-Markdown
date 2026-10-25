@@ -9,6 +9,7 @@ import 'theme/app_theme.dart';
 import 'ui/reader_screen.dart';
 import 'ui/widgets/app_menu_bar.dart';
 import 'ui/widgets/unsaved_changes_dialog.dart';
+import 'services/file_service.dart';
 
 void main(List<String> args) async {
   FlutterError.onError = (details) {
@@ -46,7 +47,7 @@ void main(List<String> args) async {
       }
     }
   }
-
+  await FileService.preloadWelcomeGuide();
   runApp(MarkdownReaderApp(initialFilePath: initialFilePath));
 }
 
