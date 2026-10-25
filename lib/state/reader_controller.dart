@@ -103,6 +103,7 @@ class ReaderController extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = 'Failed to save file: ${e.toString()}';
+      debugPrint('HOB: Failed to save file: $e');
       notifyListeners();
       return false;
     }
@@ -141,6 +142,7 @@ class ReaderController extends ChangeNotifier {
       return false;
     } catch (e) {
       _errorMessage = 'Failed to save file as: ${e.toString()}';
+      debugPrint('HOB: Failed to save file as: $e');
       notifyListeners();
       return false;
     }
@@ -269,18 +271,22 @@ class ReaderController extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('HOB: openFile failed: $e');
       _isLoading = false;
       _errorMessage = 'Failed to load file: ${e.toString()}';
+      debugPrint('HOB: Failed to open file: $e');
       _currentDocument ??= _fileService.getSampleDocument();
       notifyListeners();
     }
   }
 
   Future<void> openFilePicker() async {
-    final path = await _fileService.pickMarkdownFile();
-    if (path != null) {
-      await openFile(path);
+    try {
+      final path = await _fileService.pickMarkdownFile();
+      if (path != null) await openFile(path);
+    } catch (e) {
+      debugPrint('HOB: file picker failed: $e');
+      _errorMessage = 'Could not open the file picker: $e';
+      notifyListeners();
     }
   }
 
@@ -362,6 +368,7 @@ class ReaderController extends ChangeNotifier {
       await _printService.printDocument(doc);
     } catch (e) {
       _errorMessage = 'Failed to print document: $e';
+      debugPrint('HOB: Failed to print the document: $e');
       notifyListeners();
     }
   }

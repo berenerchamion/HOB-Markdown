@@ -11,6 +11,15 @@ import 'ui/widgets/app_menu_bar.dart';
 import 'ui/widgets/unsaved_changes_dialog.dart';
 
 void main(List<String> args) async {
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details); // keep the normal console output
+    debugPrint('Unhandled Flutter error: ${details.exceptionAsString()}');
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('Unhandled async error: $error\n$stack');
+    return true; // handled, so the app keeps running
+  };
+
   WidgetsFlutterBinding.ensureInitialized();
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/LICENSE-2.0.txt');
