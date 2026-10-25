@@ -49,8 +49,8 @@ class ReaderController extends ChangeNotifier {
     String? initialFilePath,
     FileService? fileService,
     PrintService? printService,
-  })  : _fileService = fileService ?? FileService(),
-        _printService = printService ?? const PrintService() {
+  }) : _fileService = fileService ?? FileService(),
+       _printService = printService ?? const PrintService() {
     if (initialFilePath != null) {
       openFile(initialFilePath);
     } else {
@@ -269,6 +269,7 @@ class ReaderController extends ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
+      debugPrint('HOB: openFile failed: $e');
       _isLoading = false;
       _errorMessage = 'Failed to load file: ${e.toString()}';
       _currentDocument ??= _fileService.getSampleDocument();

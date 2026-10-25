@@ -65,6 +65,10 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
   }
 
   Future<void> _handleIncomingFile(String filePath) async {
+    debugPrint(
+      'HOB: _handleIncomingFile $filePath mounted=$mounted dirty=${_controller.isDirty}',
+    );
+
     if (!mounted) return;
 
     if (_controller.isDirty) {

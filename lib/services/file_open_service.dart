@@ -4,8 +4,9 @@ import 'package:flutter/services.dart';
 /// Platform channel service for managing file open events initiated by the OS
 /// (e.g. macOS Finder 'Open With', double-clicking markdown files, etc.).
 class FileOpenService {
-  static const MethodChannel _channel =
-      MethodChannel('com.antigravity.md_reader/file_open');
+  static const MethodChannel _channel = MethodChannel(
+    'com.antigravity.md_reader/file_open',
+  );
 
   static void Function(String filePath)? _listener;
   static bool _handlerInitialized = false;
@@ -14,12 +15,16 @@ class FileOpenService {
   /// (cold start).
   static Future<String?> getInitialFile() async {
     try {
-      final String? path = await _channel.invokeMethod<String>('getInitialFile');
+      final String? path = await _channel.invokeMethod<String>(
+        'getInitialFile',
+      );
       if (path != null && path.trim().isNotEmpty) {
         return path.trim();
       }
-    } catch (_) {
-      // Platform channel not supported on this platform or error occurred
+    } catch (e) {
+      debugPrint(
+        'Platform channel not supported on this platform or error occurred: $e',
+      );
     }
     return null;
   }
