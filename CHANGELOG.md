@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-10-25
+- Standardized all labels on com.hob.markdown throughout the entire application
+- Updated the README.md with latest information
+- Updated the default screen size to be wide enough to show the left sidebar by deault
+- Updated the app to store the last user's window size and possition to be used at next launch
+
 ## [1.1.1] - 2026-10-25
 - Updated the README.md with more details on usage 
 - Added CHANGELOG.md (this file) so that there is a running list of big changes

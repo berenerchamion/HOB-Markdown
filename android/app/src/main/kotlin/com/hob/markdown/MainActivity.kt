@@ -1,4 +1,4 @@
-package com.antigravity.md_reader_2
+package com.hob.markdown
 
 import io.flutter.embedding.android.FlutterActivity
 

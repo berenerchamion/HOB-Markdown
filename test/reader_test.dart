@@ -384,7 +384,7 @@ Setext Level 2
   });
 
   group('FileOpenService Platform Channel Tests', () {
-    const channel = MethodChannel('com.antigravity.md_reader/file_open');
+    const channel = MethodChannel('com.hob.markdown/file_open');
 
     tearDown(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -427,7 +427,7 @@ Setext Level 2
         const MethodCall('onFileOpened', '/users/docs/warm_start.md'),
       );
       await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .handlePlatformMessage('com.antigravity.md_reader/file_open', data, (_) {});
+          .handlePlatformMessage('com.hob.markdown/file_open', data, (_) {});
 
       expect(openedPath, '/users/docs/warm_start.md');
     });

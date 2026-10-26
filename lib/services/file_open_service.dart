@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 /// (e.g. macOS Finder 'Open With', double-clicking markdown files, etc.).
 class FileOpenService {
   static const MethodChannel _channel = MethodChannel(
-    'com.antigravity.md_reader/file_open',
+    'com.hob.markdown/file_open',
   );
 
   static void Function(String filePath)? _listener;

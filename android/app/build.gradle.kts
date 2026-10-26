@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.antigravity.md_reader_2"
+    namespace = "com.hob.markdown"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.antigravity.md_reader_2"
+        applicationId = "com.hob.markdown"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
