@@ -18,7 +18,7 @@ Printing of most charaters, emojis, and things like this are supported by HOB Ma
 
 ## Using HOB Markdown
 
-HOB Markdown will work just like many editors. Open it from teh Applications folder and you get some default donctent. File New on the menu will clear that out. 
+HOB Markdown works just like many editors. Open it from the Applications folder and you get some default content that also helps newbies with the basics of Markdown syntax. File New on the menu will clear that out. Or drag and drop an md file into the window. 
 
 Right click on an existing .md file and select "Open With" and then select HOB Markdown and it will load that right up. Or you can drag and drop an .md file into the current window and it will replace the document in the same window. 
 
