@@ -18,13 +18,13 @@ Printing of most charaters, emojis, and things like this are supported by HOB Ma
 
 ## Using HOB Markdown
 
-HOB Markdown works just like many editors. Open it from the Applications folder and you get some default content that also helps newbies with the basics of Markdown syntax. File New on the menu will clear that out. Or drag and drop an md file into the window. 
+HOB Markdown works just like many editors. Open it from the Applications folder and you get some default content that also helps newbies with the basics of Markdown syntax. File New on the menu will clear that out. Or drag and drop an .md file into the window. 
 
 Right click on an existing .md file and select "Open With" and then select HOB Markdown and it will load that right up. Or you can drag and drop an .md file into the current window and it will replace the document in the same window. 
 
 If you configure HOB Markdown as the default markdown application then you can just double click an .md file and it will open it in a new window. This behavior is intentional! Double-click to open a new window...drag and drop to use the current window. 
 
-There is help available from the Help menu for those not familiar with Markdown's markup tags. 
+There is help available from the Help menu for those not familiar with Markdown's markup tags. There are a bunch of chortcut keystrokes that you can learn about in the help menu for macOS. 
 
 ## Doing a Full Build
 
@@ -38,7 +38,7 @@ To build a clean non-debug release that can be dropped in your applications fold
 
 flutter build macos --release
 
-The release will be quite a bit smaller than a debug release - should be around 28MB in size. It is configured to be a an option on the macOS menus to auto-open Markdown files. You can set it as the default if you like. 
+The release will be quite a bit smaller than a debug release - should be around 36MB in size. It is configured to be a an option on the macOS menus to auto-open Markdown files. You can set it as the default if you like. 
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
