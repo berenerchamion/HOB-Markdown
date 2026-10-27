@@ -32,6 +32,16 @@ This will not allow you to distribute it to other folks or they will get the gat
 
 Obviosuly you will need to have XCode installed along with the command line tools and also have the Flutter SDK installed and configured properly (flutter doctor returns no errors).
 
+To run a code analysis on the project use this command: 
+
+flutter analyze
+
+To run the full set of tests use this command: 
+
+flutter test
+
+Keep in mind when you run the tests, there are "negative tests" included that will output errors to the console. This is normal operation for those tests. An example is a test attempting to save a file that does not exist. 
+
 To build a clean non-debug release that can be dropped in your applications folder, download the code and then on macOS run this command: 
 
 flutter build macos --release

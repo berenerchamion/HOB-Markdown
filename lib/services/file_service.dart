@@ -126,8 +126,6 @@ class FileService {
     final uri = await FilePicker.saveFile(
       dialogTitle: 'Save Markdown File',
       fileName: suggestedName,
-      type: FileType.custom,
-      allowedExtensions: ['md', 'markdown', 'txt'],
       bytes: Uint8List.fromList(utf8.encode(content)),
     );
     return uri?.toFilePath();

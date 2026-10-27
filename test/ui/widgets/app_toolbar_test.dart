@@ -10,6 +10,27 @@ class StubFileService extends FileService {
   bool saveCalled = false;
 
   @override
+  Future<String?> pickSavePath({
+    String suggestedName = 'document.md',
+    required String content,
+  }) async {
+    return '/test/saved_doc.md';
+  }
+
+  @override
+  Future<DocumentModel> buildDocumentModelFromDisk(
+    String filePath,
+    String content,
+  ) async {
+    saveCalled = true;
+    return buildDocumentFromContent(
+      path: filePath,
+      fileName: 'test.md',
+      content: content,
+    );
+  }
+
+  @override
   Future<DocumentModel> saveFile(String filePath, String content) async {
     saveCalled = true;
     return buildDocumentFromContent(path: filePath, fileName: 'test.md', content: content);
@@ -89,6 +110,7 @@ void main() {
       // Tapping save
       await tester.tap(find.widgetWithText(FilledButton, 'Save'));
       await tester.pumpAndSettle();
+      expect(stubService.saveCalled, true);
     });
 
     testWidgets('renders fallback HOB Markdown title and hides doc actions when document is null', (WidgetTester tester) async {

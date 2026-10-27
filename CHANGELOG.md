@@ -2,7 +2,15 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [1.3.1] - 2026-10-27
+ - Updated readme and this file
+ - Fixed a UI test in app_toolbar_test.dart
+ - Updated to latest version of Flutter
+
+## [1.3.0] - 2026-10-27
+ - Expanded and improved testing suite: ~40 new tests
+ - Added Help  to the menu bar in the app screen
+ - Fixed several edge case bugs 
 
 ## [1.1.2] - 2026-10-25
 - Standardized all labels on com.hob.markdown throughout the entire application
