@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../state/reader_controller.dart';
 
 class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
@@ -44,9 +45,14 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
               child: Tooltip(
                 message: doc.path ?? 'Sample Document (In-memory)',
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                    color: colorScheme.surfaceContainerHigh.withValues(
+                      alpha: 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -60,10 +66,14 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          controller.isDirty ? '${doc.fileName} •' : doc.fileName,
+                          controller.isDirty
+                              ? '${doc.fileName} •'
+                              : doc.fileName,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: controller.isDirty ? colorScheme.primary : colorScheme.onSurface,
+                            color: controller.isDirty
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -123,7 +133,10 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
                     label: const Text('Save'),
                     style: FilledButton.styleFrom(
                       visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                     ),
                   )
                 : IconButton(
@@ -145,7 +158,9 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
         if (doc != null)
           IconButton(
             icon: Icon(
-              controller.isSearching ? Icons.search_off_rounded : Icons.search_rounded,
+              controller.isSearching
+                  ? Icons.search_off_rounded
+                  : Icons.search_rounded,
               size: 20,
             ),
             tooltip: 'Search in document (⌘F)',
@@ -182,12 +197,19 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
             controller.themeMode == ThemeMode.dark
                 ? Icons.dark_mode_rounded
                 : controller.themeMode == ThemeMode.light
-                    ? Icons.light_mode_rounded
-                    : Icons.brightness_auto_rounded,
+                ? Icons.light_mode_rounded
+                : Icons.brightness_auto_rounded,
             size: 20,
           ),
           tooltip: 'Theme: ${controller.themeMode.name.toUpperCase()} (⌘T)',
           onPressed: controller.toggleTheme,
+        ),
+
+        // Open Help
+        IconButton(
+          icon: const Icon(Icons.help, size: 20),
+          tooltip: 'Show help (⌘H)',
+          onPressed: () => controller.showHelpWindow(),
         ),
 
         const SizedBox(width: 8),
@@ -201,7 +223,9 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
             label: const Text('Open'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
         ),

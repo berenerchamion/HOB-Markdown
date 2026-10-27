@@ -23,13 +23,21 @@ class _SearchBarOverlayState extends State<SearchBarOverlay> {
   @override
   void initState() {
     super.initState();
+    _textController.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
   }
 
+  void _onTextChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
+    _textController.removeListener(_onTextChanged);
     _textController.dispose();
     _focusNode.dispose();
     super.dispose();

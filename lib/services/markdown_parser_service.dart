@@ -94,7 +94,10 @@ class MarkdownParserService {
 
   static String _cleanMarkdownInline(String text) {
     return text
-        .replaceAll(RegExp(r'\[(.*?)\]\(.*?\)'), r'$1') // [text](url) -> text
+        .replaceAllMapped(
+          RegExp(r'\[(.*?)\]\(.*?\)'),
+          (match) => match.group(1) ?? '',
+        ) // [text](url) -> text
         .replaceAll(RegExp(r'[*_~`^]'), '') // bold, italic, code
         .replaceAll(RegExp(r'<[^>]*>'), '') // html tags
         .trim();
