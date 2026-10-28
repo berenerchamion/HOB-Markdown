@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,8 @@ class DropTargetZone extends StatefulWidget {
   State<DropTargetZone> createState() => _DropTargetZoneState();
 }
 
-class _DropTargetZoneState extends State<DropTargetZone> with SingleTickerProviderStateMixin {
+class _DropTargetZoneState extends State<DropTargetZone>
+    with SingleTickerProviderStateMixin {
   bool _isDragging = false;
   late final AnimationController _pulseController;
   late final Animation<double> _scaleAnimation;
@@ -82,13 +84,18 @@ class _DropTargetZoneState extends State<DropTargetZone> with SingleTickerProvid
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                     child: Container(
-                      color: theme.scaffoldBackgroundColor.withValues(alpha: 0.85),
+                      color: theme.scaffoldBackgroundColor.withValues(
+                        alpha: 0.85,
+                      ),
                       padding: const EdgeInsets.all(32),
                       child: Center(
                         child: ScaleTransition(
                           scale: _scaleAnimation,
                           child: Container(
-                            constraints: const BoxConstraints(maxWidth: 480, maxHeight: 300),
+                            constraints: const BoxConstraints(
+                              maxWidth: 480,
+                              maxHeight: 300,
+                            ),
                             padding: const EdgeInsets.all(32),
                             decoration: BoxDecoration(
                               color: colorScheme.surfaceContainerHigh,
@@ -100,7 +107,9 @@ class _DropTargetZoneState extends State<DropTargetZone> with SingleTickerProvid
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary.withValues(alpha: 0.25),
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.25,
+                                  ),
                                   blurRadius: 30,
                                   spreadRadius: 4,
                                 ),
@@ -125,15 +134,16 @@ class _DropTargetZoneState extends State<DropTargetZone> with SingleTickerProvid
                                 const SizedBox(height: 20),
                                 Text(
                                   'Drop Markdown file here',
-                                  style: theme.textTheme.headlineSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface,
-                                  ),
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.onSurface,
+                                      ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Release to instantly render in Material 3',
+                                  'Release to instantly render in HOB Markdown!',
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
