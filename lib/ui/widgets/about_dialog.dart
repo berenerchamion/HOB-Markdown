@@ -10,7 +10,7 @@ void showAppAboutDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('HOB Markdown License'),
+      title: const Text('House of Beor Markdown - License Agreement'),
       content: SizedBox(
         width: 600,
         child: SingleChildScrollView(
@@ -46,8 +46,8 @@ void showAppAboutDialog(BuildContext context) {
             Navigator.pop(context);
             showLicensePage(
               context: context,
-              applicationName: 'Folio',
-              applicationVersion: '1.0.0',
+              applicationName: 'House of. Beor Markdown',
+              applicationVersion: '1.3.2',
             );
           },
           child: const Text('Third-party licenses'),

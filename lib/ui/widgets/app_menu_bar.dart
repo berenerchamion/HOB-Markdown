@@ -24,7 +24,7 @@ class AppMenuBar extends StatelessWidget {
                 showAboutDialog(
                   context: context,
                   applicationName: 'House of Beor Markdown',
-                  applicationVersion: '1.0.1',
+                  applicationVersion: '1.3.2',
                   applicationIcon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
