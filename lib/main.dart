@@ -10,6 +10,7 @@ import 'ui/reader_screen.dart';
 import 'ui/widgets/app_menu_bar.dart';
 import 'ui/widgets/unsaved_changes_dialog.dart';
 import 'services/file_service.dart';
+import 'app_info.dart';
 
 void main(List<String> args) async {
   FlutterError.onError = (details) {
@@ -31,6 +32,10 @@ void main(List<String> args) async {
     final license = await rootBundle.loadString('assets/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Open Font License'], license);
   });
+
+  // Load app info before starting the app
+  // - especially the app version number to use across the app
+  AppInfo.load();
 
   String? initialFilePath;
   try {

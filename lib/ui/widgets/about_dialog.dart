@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../../app_info.dart';
+
 Future<String> _loadLicenseText() {
   return rootBundle.loadString('assets/LICENSE-2.0.txt');
 }
@@ -47,7 +49,7 @@ void showAppAboutDialog(BuildContext context) {
             showLicensePage(
               context: context,
               applicationName: 'House of. Beor Markdown',
-              applicationVersion: '1.3.2',
+              applicationVersion: AppInfo.version,
             );
           },
           child: const Text('Third-party licenses'),

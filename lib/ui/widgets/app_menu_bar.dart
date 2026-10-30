@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../state/reader_controller.dart';
 import 'about_dialog.dart';
+import '../../app_info.dart';
 
 class AppMenuBar extends StatelessWidget {
   final ReaderController controller;
@@ -24,7 +25,7 @@ class AppMenuBar extends StatelessWidget {
                 showAboutDialog(
                   context: context,
                   applicationName: 'House of Beor Markdown',
-                  applicationVersion: '1.3.2',
+                  applicationVersion: AppInfo.version,
                   applicationIcon: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(

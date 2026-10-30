@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project are documented here.
+ ## [1.3.3] - 2026-10-27
+ - Added functions so that the version number appears consistently as it is pulled from pubspec.yaml
+
+ ## [1.3.2] - 2026-10-27
+ - Fixed source view gutter to correctly display line numbers
+ - Improved source view performance for large files (more than 2000 lines)
 
 ## [1.3.1] - 2026-10-27
  - Updated readme and this file
