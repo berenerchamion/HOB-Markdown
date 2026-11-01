@@ -7,6 +7,7 @@ I created and edited this file in the HOB Markdown app!!
 ## Current Build Status
 
 ![CI](https://github.com/berenerchamion/HOB-Markdown/actions/workflows/ci.yml/badge.svg)
+[View Code Coverage Report](https://berenerchamion.github.io/HOB-Markdown/)
 
 ## Getting Started
 
@@ -14,7 +15,7 @@ This project is primarily optimized for use on macOS desktop because that is whe
 
 If you want to try this out, it is pretty easy. You'll need to have the XCode and Flutter tool chains installed and functioning properly. Basically that means a "flutter doctor" will come back with an all good. I will be keeeping this at the latest version of Flutter (3.47+ at the time of writing). 
 
-When you have that working, grab the code, go to the project root and start it up with `flutter run -d macos` and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
+When you have Flutter working, grab the code, go to the project root and start it up with `flutter run -d macos` and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
 
 If you open an .md file in HOB Markdown that is not UTF-8, it will be converted to UTF-8, which normally should not cause any issues, but just be aware of this. 
 
@@ -26,7 +27,7 @@ HOB Markdown works just like many editors. Open it from the Applications folder 
 
 Right click on an existing .md file and select "Open With" and then select HOB Markdown and it will load that right up. Or you can drag and drop an .md file into the current window and it will replace the document in the same window.  
 
-There is help available from the Help menu for those not familiar with Markdown's markup tags. There are a bunch of chortcut keystrokes that you can learn about in the help menu for macOS. 
+There is help available from the Help menu for those not familiar with Markdown's markup tags. There are a bunch of shortcut keystrokes that you can learn about in the help menu for macOS. 
 
 ## Doing a Full Build
 

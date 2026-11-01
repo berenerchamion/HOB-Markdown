@@ -13,6 +13,8 @@ on:
 
 permissions:
   contents: read
+  pages: write      # Required to deploy to GitHub Pages
+  id-token: write   # Required for secure OIDC authentication by GitHub Pages
 
 # If you push again while a run is in progress, cancel the older run.
 concurrency:
@@ -43,13 +45,12 @@ jobs:
           channel: stable
           cache: true
 
-      # Flutter's Linux desktop build needs these system packages. If the Linux
-      # job fails on a missing library, the error names it: add it to this line.
+      # Flutter's Linux desktop build needs these system packages.
       - name: Install Linux build dependencies
         if: matrix.target == 'linux'
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev lcov
 
       - run: flutter --version
 
@@ -60,7 +61,59 @@ jobs:
         if: matrix.target == 'linux'
         run: flutter analyze
 
-      - run: flutter test
+      # --- COVERAGE PIPELINE FOR LINUX ---
+      - name: Activate Flutter coverage package (Linux)
+        if: matrix.target == 'linux'
+        run: flutter pub global activate coverage
+
+      - name: Run tests with Function Coverage (Linux)
+        if: matrix.target == 'linux'
+        run: |
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          flutter pub global run coverage:test_with_coverage --function-coverage --branch-coverage
+
+      - name: Filter out auto-generated files (Linux)
+        if: matrix.target == 'linux'
+        run: |
+          lcov --remove coverage/lcov.info \
+            '**/*.g.dart' \
+            '**/*.freezed.dart' \
+            '**/*.mocks.dart' \
+            '**/generated_plugin_registrant.dart' \
+            -o coverage/lcov.cleaned.info
+
+      - name: Generate HTML Report via genhtml (Linux)
+        if: matrix.target == 'linux'
+        run: |
+          genhtml coverage/lcov.cleaned.info -o coverage/html --rc lcov_function_coverage=1
+
+      # Replaces upload-artifact to bundle the site specifically for GitHub Pages deployment
+      - name: Upload Pages Artifact (Linux)
+        if: matrix.target == 'linux'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: coverage/html/
+      # -----------------------------------
+
+      # Standard test backup step for non-Linux runners
+      - name: Run standard tests (macOS and Windows)
+        if: matrix.target != 'linux'
+        run: flutter test
 
       - name: Build (release)
         run: flutter build ${{ matrix.target }} --release
+
+  # Pages deployment step that runs after the builds complete successfully
+  deploy:
+    name: Deploy Coverage Dashboard
+    needs: build
+    # Only deploy when code is merged into main/develop, not during pull requests
+    if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'develop')
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
