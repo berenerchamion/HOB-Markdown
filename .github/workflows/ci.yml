@@ -11,10 +11,11 @@ on:
       - '**.md'
   workflow_dispatch: # lets you run it manually from the Actions tab
 
+# Least privilege by default. The deploy job at the bottom asks for the extra
+# permissions it needs, so the build jobs (which run on every pull request)
+# never hold them.
 permissions:
   contents: read
-  pages: write      # Required to deploy to GitHub Pages
-  id-token: write   # Required for secure OIDC authentication by GitHub Pages
 
 # If you push again while a run is in progress, cancel the older run.
 concurrency:
@@ -25,6 +26,7 @@ jobs:
   build:
     name: Build and test (${{ matrix.target }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45 # stops a hung build from burning runner minutes
     strategy:
       # Let every platform finish, so one failure doesn't hide the others.
       fail-fast: false
@@ -45,7 +47,8 @@ jobs:
           channel: stable
           cache: true
 
-      # Flutter's Linux desktop build needs these system packages.
+      # Flutter's Linux desktop build needs these system packages; lcov is for
+      # the coverage report.
       - name: Install Linux build dependencies
         if: matrix.target == 'linux'
         run: |
@@ -61,59 +64,84 @@ jobs:
         if: matrix.target == 'linux'
         run: flutter analyze
 
-      # --- COVERAGE PIPELINE FOR LINUX ---
-      - name: Activate Flutter coverage package (Linux)
+      # --- Coverage (Linux only) ---------------------------------------------
+      # `flutter test --coverage` writes coverage/lcov.info by itself; the
+      # separate `coverage` package is not needed.
+      - name: Run tests with coverage (Linux)
         if: matrix.target == 'linux'
-        run: flutter pub global activate coverage
+        run: flutter test --coverage --branch-coverage
 
-      - name: Run Flutter tests with Function Coverage
-        if: matrix.target == 'linux'
-        run: |
-          # This single command runs tests natively and outputs complete LCOV data [2]
-          flutter test --coverage --branch-coverage --dart-define=line-coverage=true
-
-      # You no longer need collect_coverage or format_coverage steps here! [2]
-
-      - name: Filter out auto-generated files (Linux)
+      - name: Filter generated files out of coverage (Linux)
         if: matrix.target == 'linux'
         run: |
-          lcov --remove coverage/lcov.info \
+          lcov --branch-coverage --remove coverage/lcov.info \
             '**/*.g.dart' \
             '**/*.freezed.dart' \
             '**/*.mocks.dart' \
             '**/generated_plugin_registrant.dart' \
-            -o coverage/lcov.cleaned.info \
+            --output-file coverage/lcov.cleaned.info \
             --ignore-errors unused
 
-
-      - name: Generate HTML Report via genhtml (Linux)
+      - name: Generate HTML coverage report (Linux)
         if: matrix.target == 'linux'
         run: |
-          genhtml coverage/lcov.cleaned.info -o coverage/html --rc lcov_function_coverage=1
+          genhtml coverage/lcov.cleaned.info \
+            --output-directory coverage/html \
+            --branch-coverage \
+            --title "HOB Markdown test coverage"
 
-      # Replaces upload-artifact to bundle the site specifically for GitHub Pages deployment
-      - name: Upload Pages Artifact (Linux)
+      # Writes the total line-coverage percentage to the run summary, and to a
+      # small JSON file that shields.io turns into the README badge. The file
+      # lives inside the report, so it is published with it.
+      - name: Coverage summary and badge data (Linux)
         if: matrix.target == 'linux'
+        run: |
+          PCT=$(awk -F: '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END{ if (lf>0) printf "%.0f", 100*lh/lf; else print 0 }' coverage/lcov.cleaned.info)
+          if   [ "$PCT" -ge 80 ]; then COLOR=brightgreen
+          elif [ "$PCT" -ge 60 ]; then COLOR=yellow
+          else COLOR=red
+          fi
+          echo "Line coverage: ${PCT}%"
+          echo "### Test coverage: ${PCT}% of lines" >> "$GITHUB_STEP_SUMMARY"
+          printf '{"schemaVersion":1,"label":"coverage","message":"%s%%","color":"%s"}\n' "$PCT" "$COLOR" > coverage/html/coverage.json
+
+      # Downloadable from the run page on every branch and pull request.
+      - name: Upload coverage report (Linux)
+        if: matrix.target == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/html/
+          retention-days: 14
+
+      # Only main publishes the public dashboard.
+      - name: Upload Pages artifact (Linux, main only)
+        if: matrix.target == 'linux' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: coverage/html/
-      # -----------------------------------
+      # -----------------------------------------------------------------------
 
-      # Standard test backup step for non-Linux runners
-      - name: Run standard tests (macOS and Windows)
+      - name: Run tests (macOS and Windows)
         if: matrix.target != 'linux'
         run: flutter test
 
       - name: Build (release)
         run: flutter build ${{ matrix.target }} --release
 
-  # Pages deployment step that runs after the builds complete successfully
   deploy:
-    name: Deploy Coverage Dashboard
+    name: Publish coverage report
     needs: build
-    # Only deploy when code is merged into main/develop, not during pull requests
-    if: github.event_name != 'pull_request' && (github.ref_name == 'main' || github.ref_name == 'develop')
+    # Only publish after a push (or manual run) on main, never for pull requests.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      pages: write # deploy to GitHub Pages
+      id-token: write # verify the deployment comes from this workflow
+    # Never run two Pages deployments at once, and don't cancel one midway.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

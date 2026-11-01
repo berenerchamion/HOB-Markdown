@@ -6,8 +6,11 @@ I created and edited this file in the HOB Markdown app!!
 
 ## Current Build Status
 
-![CI](https://github.com/berenerchamion/HOB-Markdown/actions/workflows/ci.yml/badge.svg)
-[View Code Coverage Report](https://berenerchamion.github.io/HOB-Markdown/)
+[![CI](https://img.shields.io/github/actions/workflow/status/berenerchamion/HOB-Markdown/ci.yml?branch=main&label=CI&logo=github)](https://github.com/berenerchamion/HOB-Markdown/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fberenerchamion.github.io%2FHOB-Markdown%2Fcoverage.json)](https://berenerchamion.github.io/HOB-Markdown/)
+[![Release](https://img.shields.io/github/v/release/berenerchamion/HOB-Markdown?include_prereleases&logo=github)](https://github.com/berenerchamion/HOB-Markdown/releases)
+[![Flutter](https://img.shields.io/badge/Flutter-3.47%2B-02569B?logo=flutter&logoColor=white)](https://docs.flutter.dev/)
+[![Platform](https://img.shields.io/badge/macOS-primary-black?logo=apple&logoColor=white)](#getting-started)
 
 ## Getting Started
 
