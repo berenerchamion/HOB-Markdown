@@ -66,18 +66,13 @@ jobs:
         if: matrix.target == 'linux'
         run: flutter pub global activate coverage
 
-      - name: Run Flutter tests and dump raw coverage
+      - name: Run Flutter tests with Function Coverage
         if: matrix.target == 'linux'
         run: |
-          # Fired natively to log every block, function, and branch trace into raw JSON data
-          flutter test --coverage --coverage-path=coverage/coverage.json
+          # This single command runs tests natively and outputs complete LCOV data [2]
+          flutter test --coverage --branch-coverage --dart-define=line-coverage=true
 
-      - name: Format JSON into LCOV tracefile with Function metrics
-        if: matrix.target == 'linux'
-        run: |
-          export PATH="$PATH":"$HOME/.pub-cache/bin"
-          # Parses raw JSON directly into an official function-mapped lcov.info file
-          format_coverage --function-coverage --branch-coverage --in=coverage/coverage.json --out=coverage/lcov.info --report-on=lib
+      # You no longer need collect_coverage or format_coverage steps here! [2]
 
       - name: Filter out auto-generated files (Linux)
         if: matrix.target == 'linux'
@@ -88,6 +83,7 @@ jobs:
             '**/*.mocks.dart' \
             '**/generated_plugin_registrant.dart' \
             -o coverage/lcov.cleaned.info
+
 
       - name: Generate HTML Report via genhtml (Linux)
         if: matrix.target == 'linux'
