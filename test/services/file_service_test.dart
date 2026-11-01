@@ -118,6 +118,21 @@ void main() {
   });
 
   group('FileService Watcher Tests', () {
+    // Waits until [condition] is true (checked every 50 ms) or fails after
+    // [timeout]. Watcher events arrive on the OS's schedule, not ours.
+    Future<void> waitUntil(
+      bool Function() condition, {
+      Duration timeout = const Duration(seconds: 5),
+    }) async {
+      final deadline = DateTime.now().add(timeout);
+      while (!condition()) {
+        if (DateTime.now().isAfter(deadline)) {
+          fail('Timed out waiting for the file watcher to report a change');
+        }
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+    }
+
     test('startWatchingFile notifies callback on file change and debounces', () async {
       final file = File('${tempDir.path}/watched.md');
       await file.writeAsString('# Initial content');
@@ -127,20 +142,31 @@ void main() {
         changeCount++;
       });
 
+      // Give a polling watcher time to record the file's starting state.
+      await Future.delayed(const Duration(milliseconds: 100));
+
       // Rapidly modify file
       await file.writeAsString('# Modified content 1');
       await Future.delayed(const Duration(milliseconds: 50));
       await file.writeAsString('# Modified content 2');
 
-      // Wait for debounce timer (300ms) to fire
-      await Future.delayed(const Duration(milliseconds: 450));
+      // macOS and Linux report changes almost immediately, but on Windows the
+      // watcher polls about once a second. Wait for the first notification
+      // instead of assuming a fixed delay.
+      await waitUntil(() => changeCount > 0);
 
+      // Let the 300 ms debounce and any extra events settle: the rapid edits
+      // above must have collapsed into a single callback.
+      await Future.delayed(const Duration(milliseconds: 700));
       expect(changeCount, 1);
 
       // Calling stopWatchingFile prevents future notifications
       fileService.stopWatchingFile();
       await file.writeAsString('# Modified content 3');
-      await Future.delayed(const Duration(milliseconds: 450));
+
+      // Longer than one polling interval, so a watcher that was still active
+      // would have fired by now.
+      await Future.delayed(const Duration(milliseconds: 1500));
 
       expect(changeCount, 1);
     });

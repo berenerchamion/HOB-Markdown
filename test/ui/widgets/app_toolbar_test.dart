@@ -35,6 +35,16 @@ class StubFileService extends FileService {
     saveCalled = true;
     return buildDocumentFromContent(path: filePath, fileName: 'test.md', content: content);
   }
+
+  // Widget tests shouldn't start real OS file watchers. On Windows the real
+  // watcher polls using a periodic timer that is still pending when the test
+  // ends, which fails with "A Timer is still pending even after the widget
+  // tree was disposed". (tearDown runs too late to cancel it.)
+  @override
+  void startWatchingFile(String filePath, VoidCallback onFileChanged) {}
+
+  @override
+  void stopWatchingFile() {}
 }
 
 void main() {
