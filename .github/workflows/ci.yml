@@ -70,7 +70,7 @@ jobs:
         if: matrix.target == 'linux'
         run: |
           export PATH="$PATH":"$HOME/.pub-cache/bin"
-          flutter pub global run coverage:test_with_coverage --function-coverage --branch-coverage
+          flutter pub global run coverage:test_with_coverage --test-script="flutter test" --function-coverage --branch-coverage
 
       - name: Filter out auto-generated files (Linux)
         if: matrix.target == 'linux'
