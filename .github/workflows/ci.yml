@@ -68,10 +68,10 @@ jobs:
       # `flutter test --coverage` writes coverage/lcov.info by itself; the
       # separate `coverage` package is not needed.
       #
-      # Branch coverage is deliberately NOT enabled. Dart can report a branch on
-      # a line that has no line-coverage entry, and lcov/genhtml 2.x reject that
-      # (lcov calls it "inconsistent", genhtml calls it "category"). Line
-      # coverage is all the badge needs.
+      # Branch coverage is enabled. Dart can report a branch on a line that has
+      # no line-coverage entry, and lcov/genhtml 2.x treat that as an error, so
+      # both the lcov and genhtml steps below need `--ignore-errors inconsistent`.
+      # The badge still reports line coverage only.
       - name: Run tests with coverage (Linux)
         if: matrix.target == 'linux'
         run: flutter test --coverage --branch-coverage
