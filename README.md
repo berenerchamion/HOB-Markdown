@@ -6,11 +6,11 @@ I created and edited this file in the HOB Markdown app!!
 
 ## Getting Started
 
-This project is primarily optimized for use on macOS desktop because that is where I primarily use markdown files. The other platforms (Linux, android, iOS, Windows, etc.) will work, but this will not be optimized for them.
+This project is primarily optimized for use on macOS desktop because that is where I primarily use markdown files. The other platforms (Linux, android, iOS, Windows, etc.) should work, but this will not be optimized for them.
 
-If you want to try this out, it is pretty easy. You'll need to have the XCode and Flutter tool chains installed and functioning properly. Basically that means a "flutter doctor" will come back with an all good.
+If you want to try this out, it is pretty easy. You'll need to have the XCode and Flutter tool chains installed and functioning properly. Basically that means a "flutter doctor" will come back with an all good. I will be keeeping this at the latest version of Flutter (3.47+ at the time of writing). 
 
-When you have that, grab the code, go to the project root and start it up with "flutter run -d macos" and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
+When you have that working, grab the code, go to the project root and start it up with `flutter run -d macos` and it should start up. The first startup will be a little slow as it gets dependencies and such downloaded. 
 
 If you open an .md file in HOB Markdown that is not UTF-8, it will be converted to UTF-8, which normally should not cause any issues, but just be aware of this. 
 
@@ -34,17 +34,17 @@ Obviosuly you will need to have XCode installed along with the command line tool
 
 To run a code analysis on the project use this command: 
 
-flutter analyze
+`flutter analyze`
 
 To run the full set of tests use this command: 
 
-flutter test
+`flutter test`
 
 Keep in mind when you run the tests, there are "negative tests" included that will output errors to the console. This is normal operation for those tests. An example is a test attempting to save a file that does not exist. 
 
 To build a clean non-debug release that can be dropped in your applications folder, download the code and then on macOS run this command: 
 
-flutter build macos --release
+`flutter build macos --release`
 
 The release will be quite a bit smaller than a debug release - should be around 36MB in size. It is configured to be a an option on the macOS menus to auto-open Markdown files. You can set it as the default if you like. 
 
