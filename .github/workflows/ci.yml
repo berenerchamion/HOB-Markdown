@@ -83,6 +83,7 @@ jobs:
             '**/*.mocks.dart' \
             '**/generated_plugin_registrant.dart' \
             -o coverage/lcov.cleaned.info
+            --ignore-errors unused
 
 
       - name: Generate HTML Report via genhtml (Linux)
