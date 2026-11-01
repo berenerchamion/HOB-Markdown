@@ -66,11 +66,18 @@ jobs:
         if: matrix.target == 'linux'
         run: flutter pub global activate coverage
 
-      - name: Run tests with Function Coverage (Linux)
+      - name: Run Flutter tests and dump raw coverage
+        if: matrix.target == 'linux'
+        run: |
+          # Fired natively to log every block, function, and branch trace into raw JSON data
+          flutter test --coverage --coverage-path=coverage/coverage.json
+
+      - name: Format JSON into LCOV tracefile with Function metrics
         if: matrix.target == 'linux'
         run: |
           export PATH="$PATH":"$HOME/.pub-cache/bin"
-          flutter pub global run coverage:test_with_coverage --function-coverage --branch-coverage -- flutter test
+          # Parses raw JSON directly into an official function-mapped lcov.info file
+          format_coverage --function-coverage --branch-coverage --in=coverage/coverage.json --out=coverage/lcov.info --report-on=lib
 
       - name: Filter out auto-generated files (Linux)
         if: matrix.target == 'linux'
