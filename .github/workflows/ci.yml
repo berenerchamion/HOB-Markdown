@@ -85,7 +85,7 @@ jobs:
             '**/*.mocks.dart' \
             '**/generated_plugin_registrant.dart' \
             --output-file coverage/lcov.cleaned.info \
-            --ignore-errors unused, inconsistent
+            --ignore-errors unused,inconsistent,empty
 
       - name: Generate HTML coverage report (Linux)
         if: matrix.target == 'linux'
