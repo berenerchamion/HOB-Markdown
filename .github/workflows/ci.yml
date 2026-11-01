@@ -82,7 +82,7 @@ jobs:
             '**/*.freezed.dart' \
             '**/*.mocks.dart' \
             '**/generated_plugin_registrant.dart' \
-            -o coverage/lcov.cleaned.info
+            -o coverage/lcov.cleaned.info \
             --ignore-errors unused
 
 
