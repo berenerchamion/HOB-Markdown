@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project are documented here.
+
+ ## [1.3.4] - 2026-10-31
+ - Updated tests and build for Windows and Linux 
+ - Updated README.md to have the build statsu
+
  ## [1.3.3] - 2026-10-27
  - Added functions so that the version number appears consistently as it is pulled from pubspec.yaml
 

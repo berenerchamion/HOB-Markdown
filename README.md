@@ -4,6 +4,10 @@ Markdown is cool, but unless you are always in Visual Studio Code (VSC) then how
 
 I created and edited this file in the HOB Markdown app!! 
 
+## Current Build Status
+
+![CI](https://github.com/berenerchamion/HOB-Markdown/actions/workflows/ci.yml/badge.svg)
+
 ## Getting Started
 
 This project is primarily optimized for use on macOS desktop because that is where I primarily use markdown files. The other platforms (Linux, android, iOS, Windows, etc.) should work, but this will not be optimized for them.
