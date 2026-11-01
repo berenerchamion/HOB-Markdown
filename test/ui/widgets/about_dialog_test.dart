@@ -5,7 +5,9 @@ import 'package:hob_markdown_reader/ui/widgets/about_dialog.dart';
 
 void main() {
   group('AboutDialog Widget Tests', () {
-    testWidgets('shows custom license dialog with actions', (WidgetTester tester) async {
+    testWidgets('shows custom license dialog with actions', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme(),
@@ -26,8 +28,14 @@ void main() {
       await tester.tap(find.text('Open License'));
       await tester.pumpAndSettle();
 
-      expect(find.text('HOB Markdown License'), findsOneWidget);
-      expect(find.text('A fast, native markdown reader and editor.'), findsOneWidget);
+      expect(
+        find.text('House of Beor Markdown - License Agreement'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('A fast, native markdown reader and editor.'),
+        findsOneWidget,
+      );
       expect(find.text('Third-party licenses'), findsOneWidget);
       expect(find.text('Close'), findsOneWidget);
 

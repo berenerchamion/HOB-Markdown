@@ -300,6 +300,7 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
                   Positioned.fill(
                     child: IgnorePointer(
                       child: CustomPaint(
+                        key: const ValueKey('line-number-gutter'),
                         painter: _GutterPainter(
                           repaint: Listenable.merge([
                             _effectiveScrollController,

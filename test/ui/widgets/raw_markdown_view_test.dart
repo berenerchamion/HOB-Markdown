@@ -5,6 +5,15 @@ import 'package:hob_markdown_reader/models/document_model.dart';
 import 'package:hob_markdown_reader/theme/app_theme.dart';
 import 'package:hob_markdown_reader/ui/widgets/raw_markdown_view.dart';
 
+/// The line-number gutter is painted on a canvas (a CustomPaint), not built
+/// from Text widgets, so `find.text('1')` can't see it. Instead, check what the
+/// gutter actually paints: one label per logical line.
+void expectGutterLabels(WidgetTester tester, int count) {
+  final gutter =
+      tester.renderObject(find.byKey(const ValueKey('line-number-gutter')));
+  expect(gutter, paintsExactlyCountTimes(#drawParagraph, count));
+}
+
 void main() {
   group('RawMarkdownView Widget Tests', () {
     testWidgets('renders line numbers gutter and text editor', (WidgetTester tester) async {
@@ -33,10 +42,44 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('1'), findsOneWidget);
-      expect(find.text('2'), findsOneWidget);
-      expect(find.text('3'), findsOneWidget);
+      expectGutterLabels(tester, 3);
       expect(find.text('Line 1\nLine 2\nLine 3'), findsOneWidget);
+    });
+
+    testWidgets('a wrapped line still gets exactly one number', (WidgetTester tester) async {
+      // Narrow window so the long line below has to wrap onto several rows.
+      tester.view.physicalSize = const Size(320, 600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      final longLine = List.filled(60, 'word').join(' ');
+      final doc = DocumentModel(
+        path: '/test/wrap.md',
+        fileName: 'wrap.md',
+        content: 'short\n$longLine\nend',
+        byteSize: 300,
+        headings: const [],
+        wordCount: 62,
+        charCount: 300,
+        lineCount: 3,
+        readingTimeMinutes: 0.1,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme(),
+          home: Scaffold(
+            body: RawMarkdownView(
+              document: doc,
+              scaleFactor: 1.0,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Three logical lines, however many visual rows the middle one takes.
+      expectGutterLabels(tester, 3);
     });
 
     testWidgets('editing text calls onChanged after debounce', (WidgetTester tester) async {
@@ -173,6 +216,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Content 1'), findsOneWidget);
+      expectGutterLabels(tester, 1);
 
       // Rebuild with doc2
       await tester.pumpWidget(
@@ -189,7 +233,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Line A\nLine B'), findsOneWidget);
-      expect(find.text('2'), findsOneWidget);
+      expectGutterLabels(tester, 2);
     });
   });
 }
