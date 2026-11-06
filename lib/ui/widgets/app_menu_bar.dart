@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../state/reader_controller.dart';
 import 'about_dialog.dart';
+import 'settings_dialog.dart';
 import '../../app_info.dart';
 
 class AppMenuBar extends StatelessWidget {
@@ -55,6 +56,14 @@ class AppMenuBar extends StatelessWidget {
               onSelected: () {
                 showAppAboutDialog(context);
               },
+            ),
+            PlatformMenuItem(
+              label: 'Settings…',
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.comma,
+                meta: true,
+              ),
+              onSelected: () => showSettingsDialog(context, controller),
             ),
             if (PlatformProvidedMenuItem.hasMenu(
               PlatformProvidedMenuItemType.quit,

@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hob_markdown_reader/models/app_settings.dart';
 import 'package:hob_markdown_reader/models/document_model.dart';
+import 'package:hob_markdown_reader/models/readability_settings.dart';
 import 'package:hob_markdown_reader/services/file_service.dart';
+import 'package:hob_markdown_reader/services/settings_service.dart';
 import 'package:hob_markdown_reader/state/reader_controller.dart';
 
 class FakeFileService extends FileService {
@@ -236,6 +239,108 @@ void main() {
 
       controller.clearError();
       expect(controller.errorMessage, isNull);
+    });
+  });
+
+  group('ReaderController settings', () {
+    late FakeFileService fakeService;
+    late MemorySettingsStore store;
+    late SettingsService settingsService;
+
+    setUp(() {
+      fakeService = FakeFileService();
+      store = MemorySettingsStore();
+      settingsService = SettingsService(store: store);
+    });
+
+    test('starts from the saved settings', () {
+      final controller = ReaderController(
+        fileService: fakeService,
+        settingsService: settingsService,
+        initialSettings: const AppSettings(
+          themeMode: ThemeMode.dark,
+          liveReload: false,
+        ),
+      );
+      addTearDown(controller.dispose);
+
+      expect(controller.themeMode, ThemeMode.dark);
+      expect(controller.autoReloadEnabled, isFalse);
+    });
+
+    test('theme and live reload changes are saved', () async {
+      final controller = ReaderController(
+        fileService: fakeService,
+        settingsService: settingsService,
+      );
+      addTearDown(controller.dispose);
+
+      controller.toggleTheme();
+      controller.toggleAutoReload();
+      await pumpEventQueue();
+
+      final saved = await settingsService.load();
+      expect(saved.themeMode, ThemeMode.dark);
+      expect(saved.liveReload, isFalse);
+    });
+
+    test('readability changes are saved', () async {
+      final controller = ReaderController(
+        fileService: fakeService,
+        settingsService: settingsService,
+      );
+      addTearDown(controller.dispose);
+
+      controller.updateSettings(
+        controller.settings.copyWith(
+          readability: const ReadabilitySettings().withValue(
+            ReadabilityThreshold.sentenceMaxWords,
+            25,
+          ),
+        ),
+      );
+      await pumpEventQueue();
+
+      final saved = await settingsService.load();
+      expect(
+        saved.readability.valueOf(ReadabilityThreshold.sentenceMaxWords),
+        25,
+      );
+    });
+
+    test('an unchanged update does not notify or save', () async {
+      final controller = ReaderController(
+        fileService: fakeService,
+        settingsService: settingsService,
+      );
+      addTearDown(controller.dispose);
+      var notified = false;
+      controller.addListener(() => notified = true);
+
+      controller.updateSettings(const AppSettings());
+      await pumpEventQueue();
+
+      expect(notified, isFalse);
+      expect(await store.read(), isNull);
+    });
+
+    test('turning live reload off and on stops and restarts the watcher',
+        () async {
+      final controller = ReaderController(
+        fileService: fakeService,
+        settingsService: settingsService,
+      );
+      addTearDown(controller.dispose);
+      await controller.openFile('/docs/watched.md');
+
+      controller.updateSettings(
+        controller.settings.copyWith(liveReload: false),
+      );
+      expect(fakeService.watcherStopped, isTrue);
+
+      fakeService.lastWatchedPath = null;
+      controller.updateSettings(controller.settings.copyWith(liveReload: true));
+      expect(fakeService.lastWatchedPath, '/docs/watched.md');
     });
   });
 }

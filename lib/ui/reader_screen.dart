@@ -11,6 +11,7 @@ import 'widgets/help_panel.dart';
 import 'widgets/markdown_view.dart';
 import 'widgets/raw_markdown_view.dart';
 import 'widgets/search_bar_overlay.dart';
+import 'widgets/settings_dialog.dart';
 import 'widgets/split_view.dart';
 import 'widgets/toc_sidebar.dart';
 
@@ -194,6 +195,13 @@ class _ReaderScreenState extends State<ReaderScreen> {
                   control: true,
                 ): () =>
                     widget.controller.toggleSearching(),
+
+                // Settings: Ctrl+, (on macOS, Cmd+, comes from the app menu)
+                const SingleActivator(
+                  LogicalKeyboardKey.comma,
+                  control: true,
+                ): () =>
+                    showSettingsDialog(context, widget.controller),
 
                 // Zoom In: Cmd + / Cmd =
                 const SingleActivator(

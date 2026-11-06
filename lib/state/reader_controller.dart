@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../models/app_settings.dart';
 import '../models/document_model.dart';
 import '../services/file_service.dart';
 import '../services/markdown_parser_service.dart';
 import '../services/print_service.dart';
+import '../services/settings_service.dart';
 
 enum ViewMode { rendered, split, source }
 
 class ReaderController extends ChangeNotifier {
   final FileService _fileService;
   final PrintService _printService;
+  final SettingsService _settingsService;
 
+  AppSettings _settings;
   DocumentModel? _currentDocument;
   ViewMode _viewMode = ViewMode.rendered;
   bool _isLoading = false;
   String? _errorMessage;
   double _textScaleFactor = 1.0;
   bool _isSidebarOpen = true;
-  ThemeMode _themeMode = ThemeMode.system;
   bool _isDraggingOver = false;
-  bool _autoReloadEnabled = true;
   final List<String> _recentFiles = [];
   bool _isSearching = false;
   String _searchQuery = '';
@@ -29,15 +31,16 @@ class ReaderController extends ChangeNotifier {
   // Getters
   FileService get fileService => _fileService;
   PrintService get printService => _printService;
+  AppSettings get settings => _settings;
   DocumentModel? get currentDocument => _currentDocument;
   ViewMode get viewMode => _viewMode;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   double get textScaleFactor => _textScaleFactor;
   bool get isSidebarOpen => _isSidebarOpen;
-  ThemeMode get themeMode => _themeMode;
+  ThemeMode get themeMode => _settings.themeMode;
   bool get isDraggingOver => _isDraggingOver;
-  bool get autoReloadEnabled => _autoReloadEnabled;
+  bool get autoReloadEnabled => _settings.liveReload;
   List<String> get recentFiles => List.unmodifiable(_recentFiles);
   bool get isSearching => _isSearching;
   String get searchQuery => _searchQuery;
@@ -49,8 +52,12 @@ class ReaderController extends ChangeNotifier {
     String? initialFilePath,
     FileService? fileService,
     PrintService? printService,
+    SettingsService? settingsService,
+    AppSettings initialSettings = const AppSettings(),
   }) : _fileService = fileService ?? FileService(),
-       _printService = printService ?? const PrintService() {
+       _printService = printService ?? const PrintService(),
+       _settingsService = settingsService ?? SettingsService(),
+       _settings = initialSettings {
     if (initialFilePath != null) {
       openFile(initialFilePath);
     } else {
@@ -103,7 +110,7 @@ class ReaderController extends ChangeNotifier {
       return true;
     } catch (e) {
       _errorMessage = 'Failed to save file: ${e.toString()}';
-      debugPrint('HOB: Failed to save file: $e');
+      debugPrint('HOB Markdown: Failed to save file: $e');
       notifyListeners();
       return false;
     }
@@ -132,7 +139,7 @@ class ReaderController extends ChangeNotifier {
         _recentFiles.remove(path);
         _recentFiles.insert(0, path);
 
-        if (_autoReloadEnabled) {
+        if (autoReloadEnabled) {
           _setupFileWatcher(path);
         }
 
@@ -142,7 +149,7 @@ class ReaderController extends ChangeNotifier {
       return false;
     } catch (e) {
       _errorMessage = 'Failed to save file as: ${e.toString()}';
-      debugPrint('HOB: Failed to save file as: $e');
+      debugPrint('HOB Markdown: Failed to save file as: $e');
       notifyListeners();
       return false;
     }
@@ -174,26 +181,34 @@ class ReaderController extends ChangeNotifier {
     }
   }
 
-  void toggleTheme() {
-    switch (_themeMode) {
-      case ThemeMode.system:
-        _themeMode = ThemeMode.dark;
-        break;
-      case ThemeMode.dark:
-        _themeMode = ThemeMode.light;
-        break;
-      case ThemeMode.light:
-        _themeMode = ThemeMode.system;
-        break;
+  /// Applies [next] and saves it. Every persistent preference goes through
+  /// here, so the menu, toolbar and settings dialog all stay in step.
+  void updateSettings(AppSettings next) {
+    if (next == _settings) return;
+    final liveReloadChanged = next.liveReload != _settings.liveReload;
+    _settings = next;
+    if (liveReloadChanged) {
+      if (next.liveReload && _currentDocument?.path != null) {
+        _setupFileWatcher(_currentDocument!.path!);
+      } else {
+        _fileService.stopWatchingFile();
+      }
     }
     notifyListeners();
+    _settingsService.save(next);
+  }
+
+  void toggleTheme() {
+    final next = switch (themeMode) {
+      ThemeMode.system => ThemeMode.dark,
+      ThemeMode.dark => ThemeMode.light,
+      ThemeMode.light => ThemeMode.system,
+    };
+    setThemeMode(next);
   }
 
   void setThemeMode(ThemeMode mode) {
-    if (_themeMode != mode) {
-      _themeMode = mode;
-      notifyListeners();
-    }
+    updateSettings(_settings.copyWith(themeMode: mode));
   }
 
   void zoomIn() {
@@ -218,13 +233,7 @@ class ReaderController extends ChangeNotifier {
   }
 
   void toggleAutoReload() {
-    _autoReloadEnabled = !_autoReloadEnabled;
-    if (_autoReloadEnabled && _currentDocument?.path != null) {
-      _setupFileWatcher(_currentDocument!.path!);
-    } else {
-      _fileService.stopWatchingFile();
-    }
-    notifyListeners();
+    updateSettings(_settings.copyWith(liveReload: !_settings.liveReload));
   }
 
   void toggleSearching() {
@@ -265,7 +274,7 @@ class ReaderController extends ChangeNotifier {
         _recentFiles.removeLast();
       }
 
-      if (_autoReloadEnabled) {
+      if (autoReloadEnabled) {
         _setupFileWatcher(filePath);
       }
 
@@ -273,7 +282,7 @@ class ReaderController extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       _errorMessage = 'Failed to load file: ${e.toString()}';
-      debugPrint('HOB: Failed to open file: $e');
+      debugPrint('HOB Markdown: Failed to open file: $e');
       _currentDocument ??= _fileService.getSampleDocument();
       notifyListeners();
     }
@@ -284,7 +293,7 @@ class ReaderController extends ChangeNotifier {
       final path = await _fileService.pickMarkdownFile();
       if (path != null) await openFile(path);
     } catch (e) {
-      debugPrint('HOB: file picker failed: $e');
+      debugPrint('HOB Markdown: file picker failed: $e');
       _errorMessage = 'Could not open the file picker: $e';
       notifyListeners();
     }
@@ -368,7 +377,7 @@ class ReaderController extends ChangeNotifier {
       await _printService.printDocument(doc);
     } catch (e) {
       _errorMessage = 'Failed to print document: $e';
-      debugPrint('HOB: Failed to print the document: $e');
+      debugPrint('HOB Markdown: Failed to print the document: $e');
       notifyListeners();
     }
   }

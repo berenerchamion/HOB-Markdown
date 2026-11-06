@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 
+import 'models/app_settings.dart';
 import 'services/file_open_service.dart';
+import 'services/settings_service.dart';
 import 'state/reader_controller.dart';
 import 'theme/app_theme.dart';
 import 'ui/reader_screen.dart';
@@ -53,13 +55,35 @@ void main(List<String> args) async {
     }
   }
   await FileService.preloadWelcomeGuide();
-  runApp(MarkdownReaderApp(initialFilePath: initialFilePath));
+
+  // Loaded before the first frame so the app opens in the saved theme.
+  final settingsService = SettingsService(
+    store: SharedPreferencesSettingsStore(),
+  );
+  final settings = await settingsService.load();
+
+  runApp(
+    MarkdownReaderApp(
+      initialFilePath: initialFilePath,
+      settingsService: settingsService,
+      initialSettings: settings,
+    ),
+  );
 }
 
 class MarkdownReaderApp extends StatefulWidget {
   final String? initialFilePath;
 
-  const MarkdownReaderApp({super.key, this.initialFilePath});
+  /// Defaults to an in-memory store, so tests never write real preferences.
+  final SettingsService? settingsService;
+  final AppSettings initialSettings;
+
+  const MarkdownReaderApp({
+    super.key,
+    this.initialFilePath,
+    this.settingsService,
+    this.initialSettings = const AppSettings(),
+  });
 
   @override
   State<MarkdownReaderApp> createState() => _MarkdownReaderAppState();
@@ -72,7 +96,11 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
   @override
   void initState() {
     super.initState();
-    _controller = ReaderController(initialFilePath: widget.initialFilePath);
+    _controller = ReaderController(
+      initialFilePath: widget.initialFilePath,
+      settingsService: widget.settingsService,
+      initialSettings: widget.initialSettings,
+    );
 
     FileOpenService.setFileOpenListener((filePath) async {
       await _handleIncomingFile(filePath);
@@ -81,7 +109,7 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
 
   Future<void> _handleIncomingFile(String filePath) async {
     debugPrint(
-      'HOB: _handleIncomingFile $filePath mounted=$mounted dirty=${_controller.isDirty}',
+      'HOB Markdown: _handleIncomingFile $filePath mounted=$mounted dirty=${_controller.isDirty}',
     );
 
     if (!mounted) return;

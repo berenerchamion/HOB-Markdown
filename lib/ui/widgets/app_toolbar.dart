@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../state/reader_controller.dart';
+import 'settings_dialog.dart';
 
 class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
   final ReaderController controller;
@@ -191,18 +192,12 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () => controller.reloadCurrentFile(),
           ),
 
-        // Theme Toggle Button
+        // Settings. Also in the app menu on macOS, but Windows and Linux
+        // have no native menu bar, so this is their way in.
         IconButton(
-          icon: Icon(
-            controller.themeMode == ThemeMode.dark
-                ? Icons.dark_mode_rounded
-                : controller.themeMode == ThemeMode.light
-                ? Icons.light_mode_rounded
-                : Icons.brightness_auto_rounded,
-            size: 20,
-          ),
-          tooltip: 'Theme: ${controller.themeMode.name.toUpperCase()} (⌘T)',
-          onPressed: controller.toggleTheme,
+          icon: const Icon(Icons.settings_outlined, size: 20),
+          tooltip: 'Settings (⌘,)',
+          onPressed: () => showSettingsDialog(context, controller),
         ),
 
         // Open Help
