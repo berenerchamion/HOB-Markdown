@@ -6,7 +6,9 @@ import 'package:hob_markdown_reader/ui/widgets/drop_target_zone.dart';
 
 void main() {
   group('DropTargetZone Widget Tests', () {
-    testWidgets('renders child widget and handles drag callbacks', (WidgetTester tester) async {
+    testWidgets('renders child widget and handles drag callbacks', (
+      WidgetTester tester,
+    ) async {
       String? droppedPath;
       bool? isDragging;
 
@@ -33,20 +35,24 @@ void main() {
       final DropTarget dropTarget = tester.widget<DropTarget>(dropTargetFinder);
 
       // Simulate onDragEntered
-      dropTarget.onDragEntered?.call(DropEventDetails(
-        localPosition: Offset.zero,
-        globalPosition: Offset.zero,
-      ));
+      dropTarget.onDragEntered?.call(
+        DropEventDetails(
+          localPosition: Offset.zero,
+          globalPosition: Offset.zero,
+        ),
+      );
       await tester.pump();
 
       expect(isDragging, true);
       expect(find.text('Drop Markdown file here'), findsOneWidget);
 
       // Simulate onDragExited
-      dropTarget.onDragExited?.call(DropEventDetails(
-        localPosition: Offset.zero,
-        globalPosition: Offset.zero,
-      ));
+      dropTarget.onDragExited?.call(
+        DropEventDetails(
+          localPosition: Offset.zero,
+          globalPosition: Offset.zero,
+        ),
+      );
       await tester.pump();
 
       expect(isDragging, false);
@@ -54,11 +60,13 @@ void main() {
 
       // Simulate onDragDone with file
       final dropItem = DropItemFile('/path/to/dragged.md');
-      dropTarget.onDragDone?.call(DropDoneDetails(
-        localPosition: Offset.zero,
-        globalPosition: Offset.zero,
-        files: [dropItem],
-      ));
+      dropTarget.onDragDone?.call(
+        DropDoneDetails(
+          localPosition: Offset.zero,
+          globalPosition: Offset.zero,
+          files: [dropItem],
+        ),
+      );
       await tester.pump();
 
       expect(isDragging, false);

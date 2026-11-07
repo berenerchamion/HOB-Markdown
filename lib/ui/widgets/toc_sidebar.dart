@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/toc_item.dart';
 
 class TocSidebar extends StatefulWidget {
@@ -68,7 +69,10 @@ class _TocSidebarState extends State<TocSidebar> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(10),
@@ -106,7 +110,11 @@ class _TocSidebarState extends State<TocSidebar> {
                   hintStyle: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
-                  prefixIcon: Icon(Icons.search_rounded, size: 16, color: colorScheme.onSurfaceVariant),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    size: 16,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   suffixIcon: _filter.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear_rounded, size: 14),
@@ -117,9 +125,14 @@ class _TocSidebarState extends State<TocSidebar> {
                         )
                       : null,
                   filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
@@ -146,69 +159,78 @@ class _TocSidebarState extends State<TocSidebar> {
                     ),
                   )
                 : filteredHeadings.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No matching headings',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
+                ? Center(
+                    child: Text(
+                      'No matching headings',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: filteredHeadings.length,
+                    itemBuilder: (context, index) {
+                      final item = filteredHeadings[index];
+                      final indent = ((item.level - 1) * 12.0).clamp(0.0, 48.0);
+
+                      return InkWell(
+                        onTap: () => widget.onHeadingSelected(item),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          padding: EdgeInsets.fromLTRB(indent + 8, 8, 8, 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: item.level == 1
+                                      ? colorScheme.primaryContainer
+                                      : colorScheme.surfaceContainerHighest
+                                            .withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'H${item.level}',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: item.level == 1
+                                        ? colorScheme.onPrimaryContainer
+                                        : colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  item.title,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontWeight: item.level <= 2
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemCount: filteredHeadings.length,
-                        itemBuilder: (context, index) {
-                          final item = filteredHeadings[index];
-                          final indent = ((item.level - 1) * 12.0).clamp(0.0, 48.0);
-
-                          return InkWell(
-                            onTap: () => widget.onHeadingSelected(item),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              padding: EdgeInsets.fromLTRB(indent + 8, 8, 8, 8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color: item.level == 1
-                                          ? colorScheme.primaryContainer
-                                          : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      'H${item.level}',
-                                      style: theme.textTheme.labelSmall?.copyWith(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: item.level == 1
-                                            ? colorScheme.onPrimaryContainer
-                                            : colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      item.title,
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        fontWeight: item.level <= 2 ? FontWeight.w600 : FontWeight.normal,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

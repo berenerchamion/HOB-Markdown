@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../models/document_model.dart';
 import '../../state/reader_controller.dart';
 
@@ -35,7 +36,10 @@ class DocumentStatusBar extends StatelessWidget {
                 onTap: controller.toggleAutoReload,
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -44,12 +48,16 @@ class DocumentStatusBar extends StatelessWidget {
                         height: 8,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: controller.autoReloadEnabled ? Colors.green : colorScheme.onSurfaceVariant,
+                          color: controller.autoReloadEnabled
+                              ? Colors.green
+                              : colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        controller.autoReloadEnabled ? 'Live Watcher On' : 'Live Watcher Off',
+                        controller.autoReloadEnabled
+                            ? 'Live Watcher On'
+                            : 'Live Watcher Off',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
@@ -106,7 +114,11 @@ class DocumentStatusBar extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.zoom_in_rounded, size: 14, color: colorScheme.onSurfaceVariant),
+                    Icon(
+                      Icons.zoom_in_rounded,
+                      size: 14,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${(controller.textScaleFactor * 100).round()}%',
@@ -136,7 +148,11 @@ class DocumentStatusBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7)),
+          Icon(
+            icon,
+            size: 13,
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+          ),
           const SizedBox(width: 5),
           Text(
             text,

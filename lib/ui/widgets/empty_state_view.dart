@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
+
 import '../../state/reader_controller.dart';
 
 class EmptyStateView extends StatelessWidget {
@@ -45,7 +46,9 @@ class EmptyStateView extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha: 0.7),
+                        color: colorScheme.primaryContainer.withValues(
+                          alpha: 0.7,
+                        ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
@@ -83,8 +86,13 @@ class EmptyStateView extends StatelessWidget {
                           icon: const Icon(Icons.add_rounded, size: 18),
                           label: const Text('New File'),
                           style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                         FilledButton.tonalIcon(
@@ -92,17 +100,30 @@ class EmptyStateView extends StatelessWidget {
                           icon: const Icon(Icons.file_open_outlined, size: 18),
                           label: const Text('Open File'),
                           style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                         OutlinedButton.icon(
                           onPressed: () => controller.loadSampleDocument(),
-                          icon: const Icon(Icons.auto_stories_outlined, size: 18),
+                          icon: const Icon(
+                            Icons.auto_stories_outlined,
+                            size: 18,
+                          ),
                           label: const Text('Welcome Guide'),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 14,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ],
@@ -138,7 +159,10 @@ class EmptyStateView extends StatelessWidget {
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: colorScheme.outlineVariant, width: 1),
+                        side: BorderSide(
+                          color: colorScheme.outlineVariant,
+                          width: 1,
+                        ),
                       ),
                       child: ListTile(
                         onTap: () => controller.openFile(filePath),
@@ -163,7 +187,8 @@ class EmptyStateView extends StatelessWidget {
                         trailing: IconButton(
                           icon: const Icon(Icons.close_rounded, size: 16),
                           tooltip: 'Remove from history',
-                          onPressed: () => controller.removeRecentFile(filePath),
+                          onPressed: () =>
+                              controller.removeRecentFile(filePath),
                         ),
                       ),
                     );

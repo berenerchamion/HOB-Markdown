@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,7 +66,8 @@ Setext Level 2
     });
 
     test('calculates document metrics correctly', () {
-      const content = 'Hello world! This is a simple test document with ten words.';
+      const content =
+          'Hello world! This is a simple test document with ten words.';
       final words = MarkdownParserService.countWords(content);
       final chars = MarkdownParserService.countCharacters(content);
       final lines = MarkdownParserService.countLines(content);
@@ -152,11 +154,16 @@ Setext Level 2
     test('updateContent recalculates metrics and marks document dirty', () {
       expect(controller.isDirty, false);
 
-      controller.updateContent('# New Edited Heading\n\nThis is new content with six words.');
+      controller.updateContent(
+        '# New Edited Heading\n\nThis is new content with six words.',
+      );
 
       expect(controller.isDirty, true);
       expect(controller.currentDocument!.headings.length, 1);
-      expect(controller.currentDocument!.headings.first.title, 'New Edited Heading');
+      expect(
+        controller.currentDocument!.headings.first.title,
+        'New Edited Heading',
+      );
       expect(controller.currentDocument!.wordCount, 10);
     });
 
@@ -199,7 +206,9 @@ Setext Level 2
   });
 
   group('Widget UI Tests', () {
-    testWidgets('renders ReaderScreen with Material 3 and sample document', (WidgetTester tester) async {
+    testWidgets('renders ReaderScreen with Material 3 and sample document', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -226,7 +235,9 @@ Setext Level 2
       controller.dispose();
     });
 
-    testWidgets('switches to Split and Source views', (WidgetTester tester) async {
+    testWidgets('switches to Split and Source views', (
+      WidgetTester tester,
+    ) async {
       final controller = ReaderController();
 
       await tester.pumpWidget(
@@ -250,7 +261,9 @@ Setext Level 2
       controller.dispose();
     });
 
-    testWidgets('shows EmptyStateView when no document is open', (WidgetTester tester) async {
+    testWidgets('shows EmptyStateView when no document is open', (
+      WidgetTester tester,
+    ) async {
       final controller = ReaderController();
       controller.clearDocument();
 
@@ -271,44 +284,47 @@ Setext Level 2
       controller.dispose();
     });
 
-    testWidgets('shows and closes HelpPanel without replacing active document', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'shows and closes HelpPanel without replacing active document',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1200, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final controller = ReaderController();
+        final controller = ReaderController();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme(),
-          home: ReaderScreen(controller: controller),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: ReaderScreen(controller: controller),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(controller.isHelpWindowOpen, false);
+        expect(controller.isHelpWindowOpen, false);
 
-      // Open Help window
-      controller.showHelpWindow();
-      await tester.pumpAndSettle();
+        // Open Help window
+        controller.showHelpWindow();
+        await tester.pumpAndSettle();
 
-      expect(find.byType(HelpPanel), findsOneWidget);
-      expect(find.text('Welcome Guide & Shortcuts'), findsOneWidget);
+        expect(find.byType(HelpPanel), findsOneWidget);
+        expect(find.text('Welcome Guide & Shortcuts'), findsOneWidget);
 
-      // Active document remains open and intact underneath
-      expect(controller.currentDocument, isNotNull);
-      expect(controller.currentDocument!.fileName, 'Welcome Guide.md');
+        // Active document remains open and intact underneath
+        expect(controller.currentDocument, isNotNull);
+        expect(controller.currentDocument!.fileName, 'Welcome Guide.md');
 
-      // Close help panel via close button
-      await tester.tap(find.byTooltip('Close'));
-      await tester.pumpAndSettle();
+        // Close help panel via close button
+        await tester.tap(find.byTooltip('Close'));
+        await tester.pumpAndSettle();
 
-      expect(controller.isHelpWindowOpen, false);
-      expect(controller.currentDocument, isNotNull);
+        expect(controller.isHelpWindowOpen, false);
+        expect(controller.currentDocument, isNotNull);
 
-      controller.dispose();
-    });
+        controller.dispose();
+      },
+    );
   });
 
   group('ReaderController File Opening & ViewMode Tests', () {
@@ -368,7 +384,9 @@ Setext Level 2
     });
 
     test('initialization with invalid file path falls back to sample document and sets error', () async {
-      final controller = ReaderController(initialFilePath: '/non/existent/file.md');
+      final controller = ReaderController(
+        initialFilePath: '/non/existent/file.md',
+      );
 
       var attempts = 0;
       while (controller.isLoading && attempts < 50) {
@@ -395,46 +413,54 @@ Setext Level 2
     test('getInitialFile returns path from platform channel', () async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-        if (methodCall.method == 'getInitialFile') {
-          return '/path/to/finder/file.md';
-        }
-        return null;
-      });
+            if (methodCall.method == 'getInitialFile') {
+              return '/path/to/finder/file.md';
+            }
+            return null;
+          });
 
       final result = await FileOpenService.getInitialFile();
       expect(result, '/path/to/finder/file.md');
     });
 
-    test('getInitialFile returns null when channel returns null or whitespace', () async {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-        return '   ';
-      });
+    test(
+      'getInitialFile returns null when channel returns null or whitespace',
+      () async {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+              return '   ';
+            });
 
-      final result = await FileOpenService.getInitialFile();
-      expect(result, isNull);
-    });
+        final result = await FileOpenService.getInitialFile();
+        expect(result, isNull);
+      },
+    );
 
-    test('setFileOpenListener triggers callback on onFileOpened method call', () async {
-      String? openedPath;
-      FileOpenService.setFileOpenListener((filePath) {
-        openedPath = filePath;
-      });
+    test(
+      'setFileOpenListener triggers callback on onFileOpened method call',
+      () async {
+        String? openedPath;
+        FileOpenService.setFileOpenListener((filePath) {
+          openedPath = filePath;
+        });
 
-      // Simulate native platform sending onFileOpened
-      const codec = StandardMethodCodec();
-      final data = codec.encodeMethodCall(
-        const MethodCall('onFileOpened', '/users/docs/warm_start.md'),
-      );
-      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .handlePlatformMessage('com.hob.markdown/file_open', data, (_) {});
+        // Simulate native platform sending onFileOpened
+        const codec = StandardMethodCodec();
+        final data = codec.encodeMethodCall(
+          const MethodCall('onFileOpened', '/users/docs/warm_start.md'),
+        );
+        await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .handlePlatformMessage('com.hob.markdown/file_open', data, (_) {});
 
-      expect(openedPath, '/users/docs/warm_start.md');
-    });
+        expect(openedPath, '/users/docs/warm_start.md');
+      },
+    );
   });
 
   group('UnsavedChangesDialog Tests', () {
-    testWidgets('shows document names and returns appropriate actions', (WidgetTester tester) async {
+    testWidgets('shows document names and returns appropriate actions', (
+      WidgetTester tester,
+    ) async {
       UnsavedChangesAction? chosenAction;
 
       await tester.pumpWidget(

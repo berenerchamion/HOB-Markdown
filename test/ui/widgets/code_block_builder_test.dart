@@ -7,14 +7,17 @@ import 'package:hob_markdown_reader/ui/widgets/code_block_builder.dart';
 
 void main() {
   group('CodeBlockBuilder Widget Tests', () {
-    testWidgets('renders language badge and handles copy button', (WidgetTester tester) async {
+    testWidgets('renders language badge and handles copy button', (
+      WidgetTester tester,
+    ) async {
       String? copiedClipboardText;
 
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
         (MethodCall methodCall) async {
           if (methodCall.method == 'Clipboard.setData') {
-            final Map<dynamic, dynamic> args = methodCall.arguments as Map<dynamic, dynamic>;
+            final Map<dynamic, dynamic> args =
+                methodCall.arguments as Map<dynamic, dynamic>;
             copiedClipboardText = args['text'] as String?;
             return null;
           }

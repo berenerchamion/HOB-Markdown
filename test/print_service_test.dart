@@ -74,10 +74,12 @@ void main() {
       expect(html, contains('font-family'));
     });
 
-    test('renders GitHub Flavored Markdown tables and code blocks into HTML', () {
-      final doc = createTestDoc(
-        fileName: 'table_test.md',
-        content: '''
+    test(
+      'renders GitHub Flavored Markdown tables and code blocks into HTML',
+      () {
+        final doc = createTestDoc(
+          fileName: 'table_test.md',
+          content: '''
 | Feature | Supported |
 | :--- | :--- |
 | Print | Yes |
@@ -86,17 +88,18 @@ void main() {
 void main() => print("hello");
 ```
 ''',
-      );
+        );
 
-      final html = printService.generateHtml(doc);
+        final html = printService.generateHtml(doc);
 
-      expect(html, contains('<table>'));
-      expect(html, contains('>Feature</th>'));
-      expect(html, contains('>Print</td>'));
-      expect(html, contains('<pre>'));
-      expect(html, contains('<code'));
-      expect(html, contains('void main() =&gt; print(&quot;hello&quot;);'));
-    });
+        expect(html, contains('<table>'));
+        expect(html, contains('>Feature</th>'));
+        expect(html, contains('>Print</td>'));
+        expect(html, contains('<pre>'));
+        expect(html, contains('<code'));
+        expect(html, contains('void main() =&gt; print(&quot;hello&quot;);'));
+      },
+    );
 
     test('includes print-optimized CSS rules for page breaks', () {
       final doc = createTestDoc(
@@ -122,7 +125,10 @@ void main() => print("hello");
 
       expect(mockPrintService.printDocumentCalled, true);
       expect(mockPrintService.lastPrintedDocument, isNotNull);
-      expect(mockPrintService.lastPrintedDocument!.fileName, 'Welcome Guide.md');
+      expect(
+        mockPrintService.lastPrintedDocument!.fileName,
+        'Welcome Guide.md',
+      );
       expect(controller.errorMessage, isNull);
 
       controller.dispose();
@@ -142,42 +148,47 @@ void main() => print("hello");
   });
 
   group('Print Toolbar UI and Shortcut Tests', () {
-    testWidgets('Print button is displayed in AppToolbar between Save and Search', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'Print button is displayed in AppToolbar between Save and Search',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1200, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      final mockPrintService = MockPrintService();
-      final controller = ReaderController(printService: mockPrintService);
+        final mockPrintService = MockPrintService();
+        final controller = ReaderController(printService: mockPrintService);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme(),
-          home: Scaffold(
-            appBar: AppToolbar(
-              controller: controller,
-              isCompact: false,
-              onToggleSidebar: () {},
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: Scaffold(
+              appBar: AppToolbar(
+                controller: controller,
+                isCompact: false,
+                onToggleSidebar: () {},
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      final printButton = find.byTooltip('Print rendered document (⌘P)');
-      expect(printButton, findsOneWidget);
+        final printButton = find.byTooltip('Print rendered document (⌘P)');
+        expect(printButton, findsOneWidget);
 
-      // Verify clicking print button calls mock print service
-      await tester.tap(printButton);
-      await tester.pumpAndSettle();
+        // Verify clicking print button calls mock print service
+        await tester.tap(printButton);
+        await tester.pumpAndSettle();
 
-      expect(mockPrintService.printDocumentCalled, true);
+        expect(mockPrintService.printDocumentCalled, true);
 
-      controller.dispose();
-    });
+        controller.dispose();
+      },
+    );
 
-    testWidgets('Pressing Cmd+P triggers printDocument', (WidgetTester tester) async {
+    testWidgets('Pressing Cmd+P triggers printDocument', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

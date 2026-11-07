@@ -17,7 +17,9 @@ void main() {
       controller.dispose();
     });
 
-    testWidgets('renders document metrics accurately', (WidgetTester tester) async {
+    testWidgets('renders document metrics accurately', (
+      WidgetTester tester,
+    ) async {
       final doc = DocumentModel(
         path: '/docs/example.md',
         fileName: 'example.md',
@@ -50,47 +52,52 @@ void main() {
       expect(find.text('100%'), findsOneWidget);
     });
 
-    testWidgets('shows Live Watcher indicator when path is non-null and toggles on tap', (WidgetTester tester) async {
-      final docWithFile = DocumentModel(
-        path: '/docs/real_file.md',
-        fileName: 'real_file.md',
-        content: 'Content',
-        byteSize: 100,
-        headings: const [],
-        wordCount: 1,
-        charCount: 7,
-        lineCount: 1,
-        readingTimeMinutes: 0.1,
-      );
+    testWidgets(
+      'shows Live Watcher indicator when path is non-null and toggles on tap',
+      (WidgetTester tester) async {
+        final docWithFile = DocumentModel(
+          path: '/docs/real_file.md',
+          fileName: 'real_file.md',
+          content: 'Content',
+          byteSize: 100,
+          headings: const [],
+          wordCount: 1,
+          charCount: 7,
+          lineCount: 1,
+          readingTimeMinutes: 0.1,
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme(),
-          home: ListenableBuilder(
-            listenable: controller,
-            builder: (context, _) => Scaffold(
-              bottomNavigationBar: DocumentStatusBar(
-                document: docWithFile,
-                controller: controller,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: ListenableBuilder(
+              listenable: controller,
+              builder: (context, _) => Scaffold(
+                bottomNavigationBar: DocumentStatusBar(
+                  document: docWithFile,
+                  controller: controller,
+                ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Live Watcher On'), findsOneWidget);
-      expect(controller.autoReloadEnabled, true);
+        expect(find.text('Live Watcher On'), findsOneWidget);
+        expect(controller.autoReloadEnabled, true);
 
-      // Tap to toggle
-      await tester.tap(find.text('Live Watcher On'));
-      await tester.pumpAndSettle();
+        // Tap to toggle
+        await tester.tap(find.text('Live Watcher On'));
+        await tester.pumpAndSettle();
 
-      expect(controller.autoReloadEnabled, false);
-      expect(find.text('Live Watcher Off'), findsOneWidget);
-    });
+        expect(controller.autoReloadEnabled, false);
+        expect(find.text('Live Watcher Off'), findsOneWidget);
+      },
+    );
 
-    testWidgets('does not show Live Watcher when document has no disk path', (WidgetTester tester) async {
+    testWidgets('does not show Live Watcher when document has no disk path', (
+      WidgetTester tester,
+    ) async {
       final inMemoryDoc = DocumentModel(
         path: null,
         fileName: 'Untitled.md',
@@ -120,7 +127,9 @@ void main() {
       expect(find.text('Live Watcher Off'), findsNothing);
     });
 
-    testWidgets('tapping zoom resets zoom factor to 100%', (WidgetTester tester) async {
+    testWidgets('tapping zoom resets zoom factor to 100%', (
+      WidgetTester tester,
+    ) async {
       controller.zoomIn();
       controller.zoomIn();
       expect(controller.textScaleFactor, closeTo(1.2, 0.001));

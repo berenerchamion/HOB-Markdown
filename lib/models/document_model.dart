@@ -27,7 +27,9 @@ class DocumentModel {
 
   String get formattedFileSize {
     if (byteSize < 1024) return '$byteSize B';
-    if (byteSize < 1024 * 1024) return '${(byteSize / 1024).toStringAsFixed(1)} KB';
+    if (byteSize < 1024 * 1024) {
+      return '${(byteSize / 1024).toStringAsFixed(1)} KB';
+    }
     return '${(byteSize / (1024 * 1024)).toStringAsFixed(2)} MB';
   }
 

@@ -8,18 +8,20 @@ import 'package:hob_markdown_reader/ui/widgets/markdown_view.dart';
 
 void main() {
   group('MarkdownView Widget Tests', () {
-    testWidgets('renders markdown and navigates to heading on anchor link tap', (WidgetTester tester) async {
-      const heading = TocItem(
-        level: 2,
-        title: 'Key Features',
-        lineNumber: 10,
-        anchor: 'key-features',
-      );
+    testWidgets(
+      'renders markdown and navigates to heading on anchor link tap',
+      (WidgetTester tester) async {
+        const heading = TocItem(
+          level: 2,
+          title: 'Key Features',
+          lineNumber: 10,
+          anchor: 'key-features',
+        );
 
-      final doc = DocumentModel(
-        path: '/docs/doc.md',
-        fileName: 'doc.md',
-        content: '''
+        final doc = DocumentModel(
+          path: '/docs/doc.md',
+          fileName: 'doc.md',
+          content: '''
 # Main Title
 
 Jump to [Key Features](#key-features) section.
@@ -27,45 +29,50 @@ Jump to [Key Features](#key-features) section.
 ## Key Features
 Details here.
 ''',
-        byteSize: 100,
-        headings: const [heading],
-        wordCount: 12,
-        charCount: 100,
-        lineCount: 8,
-        readingTimeMinutes: 0.1,
-      );
+          byteSize: 100,
+          headings: const [heading],
+          wordCount: 12,
+          charCount: 100,
+          lineCount: 8,
+          readingTimeMinutes: 0.1,
+        );
 
-      final scrollController = ScrollController();
-      TocItem? navigatedItem;
+        final scrollController = ScrollController();
+        TocItem? navigatedItem;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme(),
-          home: Scaffold(
-            body: MarkdownView(
-              document: doc,
-              scaleFactor: 1.0,
-              scrollController: scrollController,
-              onNavigateToHeading: (item) => navigatedItem = item,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: Scaffold(
+              body: MarkdownView(
+                document: doc,
+                scaleFactor: 1.0,
+                scrollController: scrollController,
+                onNavigateToHeading: (item) => navigatedItem = item,
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Main Title'), findsOneWidget);
-      expect(find.text('Key Features'), findsOneWidget);
+        expect(find.text('Main Title'), findsOneWidget);
+        expect(find.text('Key Features'), findsOneWidget);
 
-      expect(find.byType(Markdown), findsOneWidget);
+        expect(find.byType(Markdown), findsOneWidget);
 
-      // Invoke onTapLink on Markdown widget
-      final markdown = tester.widget<Markdown>(find.byType(Markdown));
-      markdown.onTapLink?.call('Key Features', '#key-features', 'Key Features');
-      await tester.pumpAndSettle();
+        // Invoke onTapLink on Markdown widget
+        final markdown = tester.widget<Markdown>(find.byType(Markdown));
+        markdown.onTapLink?.call(
+          'Key Features',
+          '#key-features',
+          'Key Features',
+        );
+        await tester.pumpAndSettle();
 
-      expect(navigatedItem, equals(heading));
+        expect(navigatedItem, equals(heading));
 
-      scrollController.dispose();
-    });
+        scrollController.dispose();
+      },
+    );
   });
 }

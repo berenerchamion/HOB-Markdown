@@ -33,7 +33,11 @@ class StubFileService extends FileService {
   @override
   Future<DocumentModel> saveFile(String filePath, String content) async {
     saveCalled = true;
-    return buildDocumentFromContent(path: filePath, fileName: 'test.md', content: content);
+    return buildDocumentFromContent(
+      path: filePath,
+      fileName: 'test.md',
+      content: content,
+    );
   }
 
   // Widget tests shouldn't start real OS file watchers. On Windows the real
@@ -77,7 +81,9 @@ void main() {
       );
     }
 
-    testWidgets('Help button is displayed and opens help window', (WidgetTester tester) async {
+    testWidgets('Help button is displayed and opens help window', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -96,56 +102,64 @@ void main() {
       expect(controller.isHelpWindowOpen, true);
     });
 
-    testWidgets('shows dirty indicator dot and tonal Save button when document has unsaved edits', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'shows dirty indicator dot and tonal Save button when document has unsaved edits',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1200, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildTestApp());
+        await tester.pumpAndSettle();
 
-      // Clean state
-      expect(find.text('Welcome Guide.md'), findsOneWidget);
-      expect(find.byTooltip('Save (⌘S)'), findsOneWidget);
+        // Clean state
+        expect(find.text('Welcome Guide.md'), findsOneWidget);
+        expect(find.byTooltip('Save (⌘S)'), findsOneWidget);
 
-      // Edit content to make dirty
-      controller.updateContent('# Edited content');
-      await tester.pumpAndSettle();
+        // Edit content to make dirty
+        controller.updateContent('# Edited content');
+        await tester.pumpAndSettle();
 
-      // Dirty state
-      expect(find.text('Welcome Guide.md •'), findsOneWidget);
-      expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+        // Dirty state
+        expect(find.text('Welcome Guide.md •'), findsOneWidget);
+        expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
 
-      // Tapping save
-      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-      await tester.pumpAndSettle();
-      expect(stubService.saveCalled, true);
-    });
+        // Tapping save
+        await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+        await tester.pumpAndSettle();
+        expect(stubService.saveCalled, true);
+      },
+    );
 
-    testWidgets('renders fallback HOB Markdown title and hides doc actions when document is null', (WidgetTester tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets(
+      'renders fallback HOB Markdown title and hides doc actions when document is null',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1200, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      controller.clearDocument();
+        controller.clearDocument();
 
-      await tester.pumpWidget(buildTestApp());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildTestApp());
+        await tester.pumpAndSettle();
 
-      expect(find.text('HOB Markdown'), findsOneWidget);
-      expect(find.byType(SegmentedButton<ViewMode>), findsNothing);
-      expect(find.byTooltip('Save (⌘S)'), findsNothing);
-      expect(find.byTooltip('Print rendered document (⌘P)'), findsNothing);
-      expect(find.byTooltip('Search in document (⌘F)'), findsNothing);
+        expect(find.text('HOB Markdown'), findsOneWidget);
+        expect(find.byType(SegmentedButton<ViewMode>), findsNothing);
+        expect(find.byTooltip('Save (⌘S)'), findsNothing);
+        expect(find.byTooltip('Print rendered document (⌘P)'), findsNothing);
+        expect(find.byTooltip('Search in document (⌘F)'), findsNothing);
 
-      // General buttons still visible
-      expect(find.byTooltip('Show help (⌘H)'), findsOneWidget);
-      expect(find.text('Open'), findsOneWidget);
-    });
+        // General buttons still visible
+        expect(find.byTooltip('Show help (⌘H)'), findsOneWidget);
+        expect(find.text('Open'), findsOneWidget);
+      },
+    );
 
-    testWidgets('hides segmented button and zoom in compact mode', (WidgetTester tester) async {
+    testWidgets('hides segmented button and zoom in compact mode', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(600, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -159,7 +173,9 @@ void main() {
       expect(find.byTooltip('Zoom Out (⌘-)'), findsNothing);
     });
 
-    testWidgets('segmented button switches view modes', (WidgetTester tester) async {
+    testWidgets('segmented button switches view modes', (
+      WidgetTester tester,
+    ) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

@@ -46,7 +46,12 @@ void main() {
 
     test('copyWith preserves unchanged properties and updates specified properties', () {
       final now = DateTime.now();
-      const heading = TocItem(level: 1, title: 'Title', lineNumber: 1, anchor: 'title');
+      const heading = TocItem(
+        level: 1,
+        title: 'Title',
+        lineNumber: 1,
+        anchor: 'title',
+      );
 
       final original = DocumentModel(
         path: '/path/doc.md',
@@ -82,9 +87,24 @@ void main() {
 
   group('TocItem Tests', () {
     test('equality and hashCode work properly', () {
-      const item1 = TocItem(level: 2, title: 'Section', lineNumber: 15, anchor: 'section');
-      const item2 = TocItem(level: 2, title: 'Section', lineNumber: 15, anchor: 'section-other');
-      const item3 = TocItem(level: 3, title: 'Section', lineNumber: 15, anchor: 'section');
+      const item1 = TocItem(
+        level: 2,
+        title: 'Section',
+        lineNumber: 15,
+        anchor: 'section',
+      );
+      const item2 = TocItem(
+        level: 2,
+        title: 'Section',
+        lineNumber: 15,
+        anchor: 'section-other',
+      );
+      const item3 = TocItem(
+        level: 3,
+        title: 'Section',
+        lineNumber: 15,
+        anchor: 'section',
+      );
 
       // item1 and item2 have same level, title, lineNumber -> should be equal according to operator ==
       expect(item1, equals(item2));
@@ -95,7 +115,12 @@ void main() {
     });
 
     test('toString returns readable format', () {
-      const item = TocItem(level: 1, title: 'Heading One', lineNumber: 5, anchor: 'heading-one');
+      const item = TocItem(
+        level: 1,
+        title: 'Heading One',
+        lineNumber: 5,
+        anchor: 'heading-one',
+      );
       expect(item.toString(), 'TocItem(H1: "Heading One" at L5)');
     });
   });

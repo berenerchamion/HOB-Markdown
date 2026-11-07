@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hob_markdown_reader/services/file_service.dart';
 
@@ -66,41 +67,50 @@ void main() {
   });
 
   group('FileService saveFile & buildDocumentModel Tests', () {
-    test('saveFile writes content to disk and returns updated DocumentModel', () async {
-      final file = File('${tempDir.path}/saved.md');
-      await file.writeAsString('Initial content');
+    test(
+      'saveFile writes content to disk and returns updated DocumentModel',
+      () async {
+        final file = File('${tempDir.path}/saved.md');
+        await file.writeAsString('Initial content');
 
-      final updatedDoc = await fileService.saveFile(
-        file.path,
-        '# Saved Heading\n\nNew updated content with five words.',
-      );
+        final updatedDoc = await fileService.saveFile(
+          file.path,
+          '# Saved Heading\n\nNew updated content with five words.',
+        );
 
-      expect(updatedDoc.path, file.path);
-      expect(updatedDoc.fileName, 'saved.md');
-      expect(updatedDoc.headings.length, 1);
-      expect(updatedDoc.headings.first.title, 'Saved Heading');
-      expect(updatedDoc.wordCount, 8);
+        expect(updatedDoc.path, file.path);
+        expect(updatedDoc.fileName, 'saved.md');
+        expect(updatedDoc.headings.length, 1);
+        expect(updatedDoc.headings.first.title, 'Saved Heading');
+        expect(updatedDoc.wordCount, 8);
 
-      // Verify on disk
-      final diskContent = await file.readAsString();
-      expect(diskContent, '# Saved Heading\n\nNew updated content with five words.');
-    });
+        // Verify on disk
+        final diskContent = await file.readAsString();
+        expect(
+          diskContent,
+          '# Saved Heading\n\nNew updated content with five words.',
+        );
+      },
+    );
 
-    test('buildDocumentModelFromDisk creates model from existing file on disk', () async {
-      final file = File('${tempDir.path}/disk_model.md');
-      await file.writeAsString('# Model From Disk\n\nSome text here.');
+    test(
+      'buildDocumentModelFromDisk creates model from existing file on disk',
+      () async {
+        final file = File('${tempDir.path}/disk_model.md');
+        await file.writeAsString('# Model From Disk\n\nSome text here.');
 
-      final doc = await fileService.buildDocumentModelFromDisk(
-        file.path,
-        '# Model From Disk\n\nSome text here.',
-      );
+        final doc = await fileService.buildDocumentModelFromDisk(
+          file.path,
+          '# Model From Disk\n\nSome text here.',
+        );
 
-      expect(doc.path, file.path);
-      expect(doc.fileName, 'disk_model.md');
-      expect(doc.headings.length, 1);
-      expect(doc.headings.first.title, 'Model From Disk');
-      expect(doc.wordCount, 6);
-    });
+        expect(doc.path, file.path);
+        expect(doc.fileName, 'disk_model.md');
+        expect(doc.headings.length, 1);
+        expect(doc.headings.first.title, 'Model From Disk');
+        expect(doc.wordCount, 6);
+      },
+    );
 
     test('buildDocumentFromContent creates model without writing to disk', () {
       final doc = fileService.buildDocumentFromContent(
@@ -133,43 +143,46 @@ void main() {
       }
     }
 
-    test('startWatchingFile notifies callback on file change and debounces', () async {
-      final file = File('${tempDir.path}/watched.md');
-      await file.writeAsString('# Initial content');
+    test(
+      'startWatchingFile notifies callback on file change and debounces',
+      () async {
+        final file = File('${tempDir.path}/watched.md');
+        await file.writeAsString('# Initial content');
 
-      int changeCount = 0;
-      fileService.startWatchingFile(file.path, () {
-        changeCount++;
-      });
+        int changeCount = 0;
+        fileService.startWatchingFile(file.path, () {
+          changeCount++;
+        });
 
-      // Give a polling watcher time to record the file's starting state.
-      await Future.delayed(const Duration(milliseconds: 100));
+        // Give a polling watcher time to record the file's starting state.
+        await Future.delayed(const Duration(milliseconds: 100));
 
-      // Rapidly modify file
-      await file.writeAsString('# Modified content 1');
-      await Future.delayed(const Duration(milliseconds: 50));
-      await file.writeAsString('# Modified content 2');
+        // Rapidly modify file
+        await file.writeAsString('# Modified content 1');
+        await Future.delayed(const Duration(milliseconds: 50));
+        await file.writeAsString('# Modified content 2');
 
-      // macOS and Linux report changes almost immediately, but on Windows the
-      // watcher polls about once a second. Wait for the first notification
-      // instead of assuming a fixed delay.
-      await waitUntil(() => changeCount > 0);
+        // macOS and Linux report changes almost immediately, but on Windows the
+        // watcher polls about once a second. Wait for the first notification
+        // instead of assuming a fixed delay.
+        await waitUntil(() => changeCount > 0);
 
-      // Let the 300 ms debounce and any extra events settle: the rapid edits
-      // above must have collapsed into a single callback.
-      await Future.delayed(const Duration(milliseconds: 700));
-      expect(changeCount, 1);
+        // Let the 300 ms debounce and any extra events settle: the rapid edits
+        // above must have collapsed into a single callback.
+        await Future.delayed(const Duration(milliseconds: 700));
+        expect(changeCount, 1);
 
-      // Calling stopWatchingFile prevents future notifications
-      fileService.stopWatchingFile();
-      await file.writeAsString('# Modified content 3');
+        // Calling stopWatchingFile prevents future notifications
+        fileService.stopWatchingFile();
+        await file.writeAsString('# Modified content 3');
 
-      // Longer than one polling interval, so a watcher that was still active
-      // would have fired by now.
-      await Future.delayed(const Duration(milliseconds: 1500));
+        // Longer than one polling interval, so a watcher that was still active
+        // would have fired by now.
+        await Future.delayed(const Duration(milliseconds: 1500));
 
-      expect(changeCount, 1);
-    });
+        expect(changeCount, 1);
+      },
+    );
   });
 
   group('FileService Sample Document Tests', () {

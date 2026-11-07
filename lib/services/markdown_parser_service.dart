@@ -30,12 +30,14 @@ class MarkdownParserService {
         // Clean markdown formatting inside title (links, bold, etc.)
         final cleanTitle = _cleanMarkdownInline(rawTitle);
 
-        items.add(TocItem(
-          level: level,
-          title: cleanTitle,
-          lineNumber: i + 1,
-          anchor: _slugify(cleanTitle),
-        ));
+        items.add(
+          TocItem(
+            level: level,
+            title: cleanTitle,
+            lineNumber: i + 1,
+            anchor: _slugify(cleanTitle),
+          ),
+        );
         continue;
       }
 
@@ -44,20 +46,24 @@ class MarkdownParserService {
         final prevLine = lines[i - 1].trim();
         if (RegExp(r'^={2,}\s*$').hasMatch(trimmed)) {
           final cleanTitle = _cleanMarkdownInline(prevLine);
-          items.add(TocItem(
-            level: 1,
-            title: cleanTitle,
-            lineNumber: i,
-            anchor: _slugify(cleanTitle),
-          ));
+          items.add(
+            TocItem(
+              level: 1,
+              title: cleanTitle,
+              lineNumber: i,
+              anchor: _slugify(cleanTitle),
+            ),
+          );
         } else if (RegExp(r'^-{2,}\s*$').hasMatch(trimmed)) {
           final cleanTitle = _cleanMarkdownInline(prevLine);
-          items.add(TocItem(
-            level: 2,
-            title: cleanTitle,
-            lineNumber: i,
-            anchor: _slugify(cleanTitle),
-          ));
+          items.add(
+            TocItem(
+              level: 2,
+              title: cleanTitle,
+              lineNumber: i,
+              anchor: _slugify(cleanTitle),
+            ),
+          );
         }
       }
     }

@@ -9,14 +9,17 @@ import 'package:hob_markdown_reader/ui/widgets/raw_markdown_view.dart';
 /// from Text widgets, so `find.text('1')` can't see it. Instead, check what the
 /// gutter actually paints: one label per logical line.
 void expectGutterLabels(WidgetTester tester, int count) {
-  final gutter =
-      tester.renderObject(find.byKey(const ValueKey('line-number-gutter')));
+  final gutter = tester.renderObject(
+    find.byKey(const ValueKey('line-number-gutter')),
+  );
   expect(gutter, paintsExactlyCountTimes(#drawParagraph, count));
 }
 
 void main() {
   group('RawMarkdownView Widget Tests', () {
-    testWidgets('renders line numbers gutter and text editor', (WidgetTester tester) async {
+    testWidgets('renders line numbers gutter and text editor', (
+      WidgetTester tester,
+    ) async {
       final doc = DocumentModel(
         path: '/test/lines.md',
         fileName: 'lines.md',
@@ -33,10 +36,7 @@ void main() {
         MaterialApp(
           theme: AppTheme.lightTheme(),
           home: Scaffold(
-            body: RawMarkdownView(
-              document: doc,
-              scaleFactor: 1.0,
-            ),
+            body: RawMarkdownView(document: doc, scaleFactor: 1.0),
           ),
         ),
       );
@@ -46,7 +46,9 @@ void main() {
       expect(find.text('Line 1\nLine 2\nLine 3'), findsOneWidget);
     });
 
-    testWidgets('a wrapped line still gets exactly one number', (WidgetTester tester) async {
+    testWidgets('a wrapped line still gets exactly one number', (
+      WidgetTester tester,
+    ) async {
       // Narrow window so the long line below has to wrap onto several rows.
       tester.view.physicalSize = const Size(320, 600);
       tester.view.devicePixelRatio = 1.0;
@@ -69,10 +71,7 @@ void main() {
         MaterialApp(
           theme: AppTheme.lightTheme(),
           home: Scaffold(
-            body: RawMarkdownView(
-              document: doc,
-              scaleFactor: 1.0,
-            ),
+            body: RawMarkdownView(document: doc, scaleFactor: 1.0),
           ),
         ),
       );
@@ -82,7 +81,9 @@ void main() {
       expectGutterLabels(tester, 3);
     });
 
-    testWidgets('editing text calls onChanged after debounce', (WidgetTester tester) async {
+    testWidgets('editing text calls onChanged after debounce', (
+      WidgetTester tester,
+    ) async {
       final doc = DocumentModel(
         path: '/test/edit.md',
         fileName: 'edit.md',
@@ -123,14 +124,17 @@ void main() {
       expect(lastChangedText, '# New Text');
     });
 
-    testWidgets('Copy All copies text to clipboard and toggles button label', (WidgetTester tester) async {
+    testWidgets('Copy All copies text to clipboard and toggles button label', (
+      WidgetTester tester,
+    ) async {
       String? copiedClipboardText;
 
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
         (MethodCall methodCall) async {
           if (methodCall.method == 'Clipboard.setData') {
-            final Map<dynamic, dynamic> args = methodCall.arguments as Map<dynamic, dynamic>;
+            final Map<dynamic, dynamic> args =
+                methodCall.arguments as Map<dynamic, dynamic>;
             copiedClipboardText = args['text'] as String?;
             return null;
           }
@@ -154,10 +158,7 @@ void main() {
         MaterialApp(
           theme: AppTheme.lightTheme(),
           home: Scaffold(
-            body: RawMarkdownView(
-              document: doc,
-              scaleFactor: 1.0,
-            ),
+            body: RawMarkdownView(document: doc, scaleFactor: 1.0),
           ),
         ),
       );
@@ -178,62 +179,59 @@ void main() {
       expect(find.text('Copy All'), findsOneWidget);
     });
 
-    testWidgets('didUpdateWidget updates text when document changes with a new path', (WidgetTester tester) async {
-      final doc1 = DocumentModel(
-        path: '/test/file1.md',
-        fileName: 'file1.md',
-        content: 'Content 1',
-        byteSize: 9,
-        headings: const [],
-        wordCount: 2,
-        charCount: 9,
-        lineCount: 1,
-        readingTimeMinutes: 0.1,
-      );
+    testWidgets(
+      'didUpdateWidget updates text when document changes with a new path',
+      (WidgetTester tester) async {
+        final doc1 = DocumentModel(
+          path: '/test/file1.md',
+          fileName: 'file1.md',
+          content: 'Content 1',
+          byteSize: 9,
+          headings: const [],
+          wordCount: 2,
+          charCount: 9,
+          lineCount: 1,
+          readingTimeMinutes: 0.1,
+        );
 
-      final doc2 = DocumentModel(
-        path: '/test/file2.md',
-        fileName: 'file2.md',
-        content: 'Line A\nLine B',
-        byteSize: 13,
-        headings: const [],
-        wordCount: 4,
-        charCount: 13,
-        lineCount: 2,
-        readingTimeMinutes: 0.1,
-      );
+        final doc2 = DocumentModel(
+          path: '/test/file2.md',
+          fileName: 'file2.md',
+          content: 'Line A\nLine B',
+          byteSize: 13,
+          headings: const [],
+          wordCount: 4,
+          charCount: 13,
+          lineCount: 2,
+          readingTimeMinutes: 0.1,
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme(),
-          home: Scaffold(
-            body: RawMarkdownView(
-              document: doc1,
-              scaleFactor: 1.0,
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: Scaffold(
+              body: RawMarkdownView(document: doc1, scaleFactor: 1.0),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Content 1'), findsOneWidget);
-      expectGutterLabels(tester, 1);
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Content 1'), findsOneWidget);
+        expectGutterLabels(tester, 1);
 
-      // Rebuild with doc2
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.lightTheme(),
-          home: Scaffold(
-            body: RawMarkdownView(
-              document: doc2,
-              scaleFactor: 1.0,
+        // Rebuild with doc2
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: Scaffold(
+              body: RawMarkdownView(document: doc2, scaleFactor: 1.0),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Line A\nLine B'), findsOneWidget);
-      expectGutterLabels(tester, 2);
-    });
+        expect(find.text('Line A\nLine B'), findsOneWidget);
+        expectGutterLabels(tester, 2);
+      },
+    );
   });
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hob_markdown_reader/models/app_settings.dart';
@@ -109,18 +110,21 @@ void main() {
       expect(result, false);
     });
 
-    test('saveCurrentFile delegates to saveFileAs when document has no path', () async {
-      controller.newDocument();
-      expect(controller.currentDocument!.path, isNull);
+    test(
+      'saveCurrentFile delegates to saveFileAs when document has no path',
+      () async {
+        controller.newDocument();
+        expect(controller.currentDocument!.path, isNull);
 
-      fakeService.savePathToReturn = '/users/test/new_doc.md';
-      final result = await controller.saveCurrentFile();
+        fakeService.savePathToReturn = '/users/test/new_doc.md';
+        final result = await controller.saveCurrentFile();
 
-      expect(result, true);
-      expect(controller.currentDocument!.path, '/users/test/new_doc.md');
-      expect(controller.isDirty, false);
-      expect(controller.recentFiles.first, '/users/test/new_doc.md');
-    });
+        expect(result, true);
+        expect(controller.currentDocument!.path, '/users/test/new_doc.md');
+        expect(controller.isDirty, false);
+        expect(controller.recentFiles.first, '/users/test/new_doc.md');
+      },
+    );
 
     test('saveCurrentFile saves directly when document has a path', () async {
       await controller.openFile('/users/test/existing.md');
@@ -135,15 +139,18 @@ void main() {
       expect(fakeService.lastSavedContent, '# Edited content');
     });
 
-    test('saveCurrentFile sets errorMessage and returns false on failure', () async {
-      await controller.openFile('/users/test/existing.md');
-      fakeService.shouldThrowOnSave = true;
+    test(
+      'saveCurrentFile sets errorMessage and returns false on failure',
+      () async {
+        await controller.openFile('/users/test/existing.md');
+        fakeService.shouldThrowOnSave = true;
 
-      final result = await controller.saveCurrentFile();
+        final result = await controller.saveCurrentFile();
 
-      expect(result, false);
-      expect(controller.errorMessage, contains('Failed to save file'));
-    });
+        expect(result, false);
+        expect(controller.errorMessage, contains('Failed to save file'));
+      },
+    );
 
     test('saveFileAs returns false and keeps dirty state when user cancels save dialog', () async {
       controller.newDocument();
@@ -167,26 +174,32 @@ void main() {
       expect(controller.errorMessage, contains('Failed to save file as'));
     });
 
-    test('recentFiles maintains MRU order and max capacity of 10 items', () async {
-      for (int i = 1; i <= 12; i++) {
-        await controller.openFile('/docs/file_$i.md');
-      }
+    test(
+      'recentFiles maintains MRU order and max capacity of 10 items',
+      () async {
+        for (int i = 1; i <= 12; i++) {
+          await controller.openFile('/docs/file_$i.md');
+        }
 
-      expect(controller.recentFiles.length, 10);
-      expect(controller.recentFiles.first, '/docs/file_12.md');
-      expect(controller.recentFiles.contains('/docs/file_1.md'), false);
-      expect(controller.recentFiles.contains('/docs/file_2.md'), false);
+        expect(controller.recentFiles.length, 10);
+        expect(controller.recentFiles.first, '/docs/file_12.md');
+        expect(controller.recentFiles.contains('/docs/file_1.md'), false);
+        expect(controller.recentFiles.contains('/docs/file_2.md'), false);
 
-      // Reopening an older file moves it to the top without duplicates
-      await controller.openFile('/docs/file_5.md');
-      expect(controller.recentFiles.first, '/docs/file_5.md');
-      expect(controller.recentFiles.where((p) => p == '/docs/file_5.md').length, 1);
+        // Reopening an older file moves it to the top without duplicates
+        await controller.openFile('/docs/file_5.md');
+        expect(controller.recentFiles.first, '/docs/file_5.md');
+        expect(
+          controller.recentFiles.where((p) => p == '/docs/file_5.md').length,
+          1,
+        );
 
-      // Removing a recent file
-      controller.removeRecentFile('/docs/file_5.md');
-      expect(controller.recentFiles.contains('/docs/file_5.md'), false);
-      expect(controller.recentFiles.length, 9);
-    });
+        // Removing a recent file
+        controller.removeRecentFile('/docs/file_5.md');
+        expect(controller.recentFiles.contains('/docs/file_5.md'), false);
+        expect(controller.recentFiles.length, 9);
+      },
+    );
 
     test('toggleAutoReload enables and disables watcher', () async {
       await controller.openFile('/docs/watched_doc.md');
@@ -205,19 +218,25 @@ void main() {
       expect(fakeService.lastWatchedPath, '/docs/watched_doc.md');
     });
 
-    test('openFilePicker opens file when selected and sets error on exception', () async {
-      fakeService.pickFilePathToReturn = '/picked/file.md';
-      await controller.openFilePicker();
+    test(
+      'openFilePicker opens file when selected and sets error on exception',
+      () async {
+        fakeService.pickFilePathToReturn = '/picked/file.md';
+        await controller.openFilePicker();
 
-      expect(controller.currentDocument!.path, '/picked/file.md');
-      expect(controller.errorMessage, isNull);
+        expect(controller.currentDocument!.path, '/picked/file.md');
+        expect(controller.errorMessage, isNull);
 
-      // Simulate picker exception
-      fakeService.shouldThrowOnPick = true;
-      await controller.openFilePicker();
+        // Simulate picker exception
+        fakeService.shouldThrowOnPick = true;
+        await controller.openFilePicker();
 
-      expect(controller.errorMessage, contains('Could not open the file picker'));
-    });
+        expect(
+          controller.errorMessage,
+          contains('Could not open the file picker'),
+        );
+      },
+    );
 
     test('UI state toggles: setDragging, setSidebarOpen, toggleSidebar, setThemeMode, clearError', () {
       expect(controller.isDraggingOver, false);
@@ -324,23 +343,27 @@ void main() {
       expect(await store.read(), isNull);
     });
 
-    test('turning live reload off and on stops and restarts the watcher',
-        () async {
-      final controller = ReaderController(
-        fileService: fakeService,
-        settingsService: settingsService,
-      );
-      addTearDown(controller.dispose);
-      await controller.openFile('/docs/watched.md');
+    test(
+      'turning live reload off and on stops and restarts the watcher',
+      () async {
+        final controller = ReaderController(
+          fileService: fakeService,
+          settingsService: settingsService,
+        );
+        addTearDown(controller.dispose);
+        await controller.openFile('/docs/watched.md');
 
-      controller.updateSettings(
-        controller.settings.copyWith(liveReload: false),
-      );
-      expect(fakeService.watcherStopped, isTrue);
+        controller.updateSettings(
+          controller.settings.copyWith(liveReload: false),
+        );
+        expect(fakeService.watcherStopped, isTrue);
 
-      fakeService.lastWatchedPath = null;
-      controller.updateSettings(controller.settings.copyWith(liveReload: true));
-      expect(fakeService.lastWatchedPath, '/docs/watched.md');
-    });
+        fakeService.lastWatchedPath = null;
+        controller.updateSettings(
+          controller.settings.copyWith(liveReload: true),
+        );
+        expect(fakeService.lastWatchedPath, '/docs/watched.md');
+      },
+    );
   });
 }
