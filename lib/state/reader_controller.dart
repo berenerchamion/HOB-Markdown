@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../models/app_settings.dart';
 import '../models/document_model.dart';
+import '../models/readability_settings.dart';
 import '../services/file_service.dart';
 import '../services/markdown_parser_service.dart';
 import '../services/print_service.dart';
+import '../services/readability_service.dart';
 import '../services/settings_service.dart';
 
 enum ViewMode { rendered, split, source }
@@ -28,6 +30,11 @@ class ReaderController extends ChangeNotifier {
   bool _isDirty = false;
   bool _isHelpWindowOpen = false;
 
+  // Readability review. Off at every launch, on purpose: highlights only
+  // appear when someone asks for them, so they never interrupt writing.
+  bool _isReviewing = false;
+  ReadabilityReport? _report;
+
   // Getters
   FileService get fileService => _fileService;
   PrintService get printService => _printService;
@@ -47,6 +54,34 @@ class ReaderController extends ChangeNotifier {
   bool get isDirty => _isDirty;
   bool get isHelpWindowOpen => _isHelpWindowOpen;
   bool get hasDocument => _currentDocument != null;
+  bool get isReviewing => _isReviewing;
+
+  /// The analysis of the current document, or null when review is off.
+  /// Worked out on first use and cached until the text or the readability
+  /// settings change.
+  ReadabilityReport? get readabilityReport {
+    final doc = _currentDocument;
+    if (!_isReviewing || doc == null) return null;
+    final cached = _report;
+    if (cached != null &&
+        cached.source == doc.content &&
+        _reportSettings == _settings.readability) {
+      return cached;
+    }
+    _reportSettings = _settings.readability;
+    return _report = ReadabilityService.analyze(
+      doc.content,
+      _settings.readability,
+    );
+  }
+
+  ReadabilitySettings? _reportSettings;
+
+  void toggleReview() {
+    _isReviewing = !_isReviewing;
+    if (!_isReviewing) _report = null;
+    notifyListeners();
+  }
 
   ReaderController({
     String? initialFilePath,

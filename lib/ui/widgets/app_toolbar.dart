@@ -192,6 +192,18 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () => controller.reloadCurrentFile(),
           ),
 
+        // Readability review
+        if (doc != null)
+          IconButton(
+            icon: const Icon(Icons.fact_check_outlined, size: 20),
+            selectedIcon: const Icon(Icons.fact_check, size: 20),
+            isSelected: controller.isReviewing,
+            tooltip: controller.isReviewing
+                ? 'Hide readability review (⇧⌘R)'
+                : 'Readability review (⇧⌘R)',
+            onPressed: controller.toggleReview,
+          ),
+
         // Settings. Also in the app menu on macOS, but Windows and Linux
         // have no native menu bar, so this is their way in.
         IconButton(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../models/document_model.dart';
 import '../../models/toc_item.dart';
+import '../../services/readability_service.dart';
 import 'markdown_view.dart';
 import 'raw_markdown_view.dart';
 
@@ -10,6 +12,7 @@ class SplitView extends StatelessWidget {
   final ScrollController scrollController;
   final ValueChanged<TocItem>? onNavigateToHeading;
   final ValueChanged<String>? onContentChanged;
+  final ReadabilityReport? review;
 
   const SplitView({
     super.key,
@@ -18,6 +21,7 @@ class SplitView extends StatelessWidget {
     required this.scrollController,
     this.onNavigateToHeading,
     this.onContentChanged,
+    this.review,
   });
 
   @override
@@ -37,6 +41,7 @@ class SplitView extends StatelessWidget {
               document: document,
               scaleFactor: scaleFactor,
               onChanged: onContentChanged,
+              review: review,
             ),
           ),
         ),

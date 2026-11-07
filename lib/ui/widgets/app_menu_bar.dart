@@ -216,6 +216,19 @@ class AppMenuBar extends StatelessWidget {
               onSelected: () => controller.toggleSidebar(),
             ),
             PlatformMenuItem(
+              label: controller.isReviewing
+                  ? 'Hide Readability Review'
+                  : 'Readability Review',
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.keyR,
+                meta: true,
+                shift: true,
+              ),
+              onSelected: controller.hasDocument
+                  ? controller.toggleReview
+                  : null,
+            ),
+            PlatformMenuItem(
               label: 'Toggle Theme (Light / Dark)',
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyT,

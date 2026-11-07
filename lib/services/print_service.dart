@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../models/document_model.dart';
+import 'markdown_alerts.dart';
 
 /// Service responsible for converting Markdown documents to clean, print-ready
 /// HTML and sending them to the operating system's native print dialog.
@@ -19,6 +20,7 @@ class PrintService {
     final bodyHtml = md.markdownToHtml(
       document.content,
       extensionSet: md.ExtensionSet.gitHubFlavored,
+      blockSyntaxes: extraBlockSyntaxes,
     );
 
     return '''

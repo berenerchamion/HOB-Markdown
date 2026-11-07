@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/readability_settings.dart';
 import '../../state/reader_controller.dart';
+import '../readability_style.dart';
 
 /// Opens the settings dialog. Changes apply and save immediately, like a
 /// macOS settings window, so there is no Save or Cancel.
@@ -184,7 +185,7 @@ class _CheckSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = settings.isEnabled(check);
-    final (title, description) = _checkText(check);
+    final (title, description) = readabilityCheckText(check);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -267,6 +268,7 @@ class _ThresholdFieldState extends State<_ThresholdField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (label, unit) = _thresholdText(widget.threshold);
+    final unitStyle = theme.textTheme.bodyMedium;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 0, 16, 8),
@@ -287,21 +289,50 @@ class _ThresholdFieldState extends State<_ThresholdField> {
             ),
           ),
           const SizedBox(width: 12),
+          // The unit sits outside the field so the field's whole width is
+          // left for the number: with "words" inside it, four-digit values
+          // were cut off.
           SizedBox(
-            width: 88,
+            width: 108,
             child: TextField(
               key: ValueKey('threshold-${widget.threshold.name}'),
               controller: _text,
               enabled: widget.enabled,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(
+                  widget.threshold.max.toString().length,
+                ),
+              ],
               textAlign: TextAlign.end,
               onChanged: _onChanged,
               decoration: InputDecoration(
                 isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
                 border: const OutlineInputBorder(),
                 errorText: _error,
-                suffixText: unit,
+              ),
+            ),
+          ),
+          // Sized to the widest unit in the current font and text size, so
+          // every row lines up and "words" can never wrap.
+          SizedBox(
+            width: _unitColumnWidth(context, unitStyle),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, top: 10),
+              child: Text(
+                unit,
+                maxLines: 1,
+                softWrap: false,
+                style: unitStyle?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: widget.enabled ? 1 : 0.38,
+                  ),
+                ),
               ),
             ),
           ),
@@ -311,66 +342,55 @@ class _ThresholdFieldState extends State<_ThresholdField> {
   }
 }
 
-(String, String) _checkText(ReadabilityCheck check) => switch (check) {
-  ReadabilityCheck.sentenceLength => (
-    'Sentence length',
-    'Flags documents with too many long sentences.',
-  ),
-  ReadabilityCheck.paragraphLength => (
-    'Paragraph length',
-    'Flags paragraphs that run too long.',
-  ),
-  ReadabilityCheck.subheadingDistribution => (
-    'Subheading distribution',
-    'Flags long stretches of text without a heading.',
-  ),
-  ReadabilityCheck.passiveVoice => (
-    'Passive voice',
-    'Flags documents with a lot of passive voice. English only.',
-  ),
-  ReadabilityCheck.consecutiveSentences => (
-    'Repeated sentence openings',
-    'Flags runs of sentences that start with the same word.',
-  ),
-  ReadabilityCheck.transitionWords => (
-    'Transition words',
-    'Flags documents with few linking words, such as "however" or '
-        '"because". English only.',
-  ),
-  ReadabilityCheck.readingEase => (
-    'Reading ease',
-    'Flesch reading ease, from 0 (very hard) to 100 (very easy). '
-        'English only.',
-  ),
-};
+/// Width of the unit column: the widest unit, plus its left padding.
+double _unitColumnWidth(BuildContext context, TextStyle? style) {
+  var widest = 0.0;
+  for (final t in ReadabilityThreshold.values) {
+    final painter = TextPainter(
+      text: TextSpan(text: _thresholdText(t).$2, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    if (painter.width > widest) widest = painter.width;
+    painter.dispose();
+  }
+  return (widest + 8).ceilToDouble();
+}
 
 /// The field label, and the short unit shown inside the field.
 (String, String) _thresholdText(ReadabilityThreshold threshold) =>
     switch (threshold) {
       ReadabilityThreshold.sentenceMaxWords => (
-        'A sentence is long above',
-        'words',
+        'Maximum length of a sentence in words:',
+        '',
       ),
       ReadabilityThreshold.longSentenceMaxPercent => (
-        'Flag when long sentences are more than',
+        'Warn when this % of sentences are longer than the maximum:',
         '%',
       ),
-      ReadabilityThreshold.paragraphMaxWords => ('Longest paragraph', 'words'),
+      ReadabilityThreshold.paragraphMaxWords => (
+        'Maximum length of a paragraph in words:',
+        '',
+      ),
       ReadabilityThreshold.sectionMaxWords => (
-        'Most words between headings',
-        'words',
+        'Maximum number of words between headings:',
+        '',
       ),
       ReadabilityThreshold.passiveMaxPercent => (
-        'Flag when passive sentences are more than',
+        'Warn when passive sentences are more than:',
         '%',
       ),
       ReadabilityThreshold.consecutiveMaxRun => (
-        'Flag runs of this many sentences',
+        'Warn when this many sentences in a row start with the same word:',
         '',
       ),
       ReadabilityThreshold.transitionMinPercent => (
-        'Flag when sentences with transitions are fewer than',
+        'Warn when fewer sentences than this use transition words:',
         '%',
       ),
-      ReadabilityThreshold.readingEaseMinScore => ('Flag scores below', ''),
+      ReadabilityThreshold.readingEaseMinScore => (
+        'Warn if the Flesch score is below:',
+        '',
+      ),
     };

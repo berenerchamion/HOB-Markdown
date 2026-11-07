@@ -9,6 +9,7 @@ import 'widgets/drop_target_zone.dart';
 import 'widgets/empty_state_view.dart';
 import 'widgets/help_panel.dart';
 import 'widgets/markdown_view.dart';
+import 'widgets/readability_panel.dart';
 import 'widgets/raw_markdown_view.dart';
 import 'widgets/search_bar_overlay.dart';
 import 'widgets/settings_dialog.dart';
@@ -172,6 +173,20 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 ): () =>
                     widget.controller.reloadCurrentFile(),
 
+                // Readability review: Shift+Cmd+R / Shift+Ctrl+R
+                const SingleActivator(
+                  LogicalKeyboardKey.keyR,
+                  meta: true,
+                  shift: true,
+                ): () =>
+                    widget.controller.toggleReview(),
+                const SingleActivator(
+                  LogicalKeyboardKey.keyR,
+                  control: true,
+                  shift: true,
+                ): () =>
+                    widget.controller.toggleReview(),
+
                 // Toggle Sidebar: Cmd+B / Ctrl+B
                 const SingleActivator(
                   LogicalKeyboardKey.keyB,
@@ -326,6 +341,13 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                             controller: widget.controller,
                                           ),
                                   ),
+
+                                  // Readability review results
+                                  if (widget.controller.isReviewing &&
+                                      doc != null)
+                                    ReadabilityPanel(
+                                      controller: widget.controller,
+                                    ),
                                 ],
                               ),
                             ),
@@ -390,6 +412,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
           scrollController: _scrollController,
           onNavigateToHeading: _scrollToHeading,
           onContentChanged: (text) => widget.controller.updateContent(text),
+          review: widget.controller.readabilityReport,
         );
       case ViewMode.source:
         return RawMarkdownView(
@@ -397,6 +420,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
           scaleFactor: widget.controller.textScaleFactor,
           scrollController: _scrollController,
           onChanged: (text) => widget.controller.updateContent(text),
+          review: widget.controller.readabilityReport,
         );
     }
   }

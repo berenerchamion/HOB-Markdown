@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/document_model.dart';
+import '../../models/readability_settings.dart';
+import '../../services/readability_service.dart';
+import '../readability_style.dart';
 
 class RawMarkdownView extends StatefulWidget {
   final DocumentModel document;
@@ -13,12 +16,16 @@ class RawMarkdownView extends StatefulWidget {
   final ScrollController? scrollController;
   final ValueChanged<String>? onChanged;
 
+  /// Readability findings to highlight, or null when review is off.
+  final ReadabilityReport? review;
+
   const RawMarkdownView({
     super.key,
     required this.document,
     required this.scaleFactor,
     this.scrollController,
     this.onChanged,
+    this.review,
   });
 
   @override
@@ -34,7 +41,7 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
   static const double _dividerWidth = 1;
   static const double _lineHeightFactor = 1.6;
 
-  late final TextEditingController _textController;
+  late final _ReviewTextController _textController;
   final FocusNode _focusNode = FocusNode();
   final ScrollController _internalScrollController = ScrollController();
 
@@ -47,6 +54,13 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
 
   Timer? _debounceTimer;
   bool _copied = false;
+
+  /// How long typing has to stop before readability highlights come back.
+  /// Long enough that they don't flash back between sentences while
+  /// someone is still writing.
+  static const Duration reviewResumeDelay = Duration(seconds: 5);
+  Timer? _reviewResumeTimer;
+  late String _lastText;
 
   // Character offset where each logical line starts. Cheap to rebuild (one
   // pass of indexOf) and holds only ints, never per-line strings or widgets.
@@ -65,18 +79,25 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: widget.document.content);
+    _textController = _ReviewTextController(text: widget.document.content)
+      ..review = widget.review;
     _lineStarts = _computeLineStarts(widget.document.content);
+    _lastText = widget.document.content;
     _textController.addListener(_handleTextChange);
   }
 
   @override
   void didUpdateWidget(RawMarkdownView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // No notify needed: this widget is rebuilding anyway, which rebuilds the
+    // TextField and asks the controller for fresh spans.
+    _textController.review = widget.review;
     // If the document content was updated externally (e.g. file reload/open)
     if (widget.document.content != _textController.text &&
         widget.document.path != oldWidget.document.path) {
       final cursor = _textController.selection;
+      // A reload or newly opened file isn't typing, so don't pause review.
+      _lastText = widget.document.content;
       _textController.text = widget.document.content;
       if (cursor.isValid && cursor.end <= widget.document.content.length) {
         _textController.selection = cursor;
@@ -98,6 +119,13 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
   }
 
   void _handleTextChange() {
+    // The listener also fires for cursor moves and selections; only real
+    // edits should hide the highlights.
+    if (_textController.text != _lastText) {
+      _lastText = _textController.text;
+      _pauseReview();
+    }
+
     final starts = _computeLineStarts(_textController.text);
     final digitsChanged =
         starts.length.toString().length != _lineStarts.length.toString().length;
@@ -113,6 +141,14 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
       if (mounted && widget.onChanged != null) {
         widget.onChanged!(_textController.text);
       }
+    });
+  }
+
+  void _pauseReview() {
+    _textController.reviewPaused = true;
+    _reviewResumeTimer?.cancel();
+    _reviewResumeTimer = Timer(reviewResumeDelay, () {
+      if (mounted) setState(() => _textController.reviewPaused = false);
     });
   }
 
@@ -195,6 +231,7 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    _reviewResumeTimer?.cancel();
     _textController.removeListener(_handleTextChange);
     _textController.dispose();
     _focusNode.dispose();
@@ -450,4 +487,102 @@ class _GutterPainter extends CustomPainter {
   // and each paint is cheap, so always repaint when a new painter is supplied.
   @override
   bool shouldRepaint(_GutterPainter oldDelegate) => true;
+}
+
+/// Draws readability highlights behind the editor text.
+///
+/// Highlights are hidden while someone is typing and come back once they've
+/// paused for [_RawMarkdownViewState.reviewResumeDelay]. They're also only
+/// drawn while the text matches what was analysed, so they can never sit on
+/// the wrong words.
+class _ReviewTextController extends TextEditingController {
+  _ReviewTextController({super.text});
+
+  ReadabilityReport? review;
+
+  /// True while someone is typing, so highlights stay out of the way.
+  bool reviewPaused = false;
+
+  // Where two highlights overlap, the more specific one wins: a passive
+  // phrase or a repeated opening shows on top of its long sentence.
+  static int _priority(ReadabilityCheck check) => switch (check) {
+    ReadabilityCheck.sentenceLength => 0,
+    _ => 1,
+  };
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final report = review;
+    if (report == null ||
+        reviewPaused ||
+        report.source != text ||
+        (withComposing && value.isComposingRangeValid)) {
+      return super.buildTextSpan(
+        context: context,
+        style: style,
+        withComposing: withComposing,
+      );
+    }
+
+    final brightness = Theme.of(context).brightness;
+    final ranges = <({int start, int end, int priority, Color color})>[];
+    for (final issue in report.issues) {
+      final color = readabilityHighlightColor(issue.check, brightness);
+      if (color == null || issue.end <= issue.start) continue;
+      ranges.add((
+        start: issue.start,
+        end: issue.end,
+        priority: _priority(issue.check),
+        color: color,
+      ));
+    }
+    if (ranges.isEmpty) {
+      return super.buildTextSpan(
+        context: context,
+        style: style,
+        withComposing: withComposing,
+      );
+    }
+
+    // Sweep the boundaries left to right, keeping the ranges that cover the
+    // current segment, and colour each segment by the top one.
+    ranges.sort((a, b) => a.start.compareTo(b.start));
+    final points = <int>{
+      0,
+      text.length,
+      for (final r in ranges) ...[r.start, r.end],
+    }.toList()..sort();
+
+    final children = <TextSpan>[];
+    final active = <({int start, int end, int priority, Color color})>[];
+    var next = 0;
+    for (var p = 0; p < points.length - 1; p++) {
+      final a = points[p];
+      final b = points[p + 1];
+      active.removeWhere((r) => r.end <= a);
+      while (next < ranges.length && ranges[next].start <= a) {
+        if (ranges[next].end > a) active.add(ranges[next]);
+        next++;
+      }
+      Color? color;
+      var best = -1;
+      for (final r in active) {
+        if (r.priority > best) {
+          best = r.priority;
+          color = r.color;
+        }
+      }
+      children.add(
+        TextSpan(
+          text: text.substring(a, b),
+          style: color == null ? null : TextStyle(backgroundColor: color),
+        ),
+      );
+    }
+    return TextSpan(style: style, children: children);
+  }
 }

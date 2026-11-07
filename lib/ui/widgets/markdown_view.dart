@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/document_model.dart';
 import '../../models/toc_item.dart';
+import '../../services/markdown_alerts.dart';
 import '../../theme/app_theme.dart';
 import 'code_block_builder.dart';
 
@@ -68,6 +69,7 @@ class MarkdownView extends StatelessWidget {
             selectable:
                 false, // Selection is handled cleanly by outer SelectionArea
             styleSheet: styleSheet,
+            blockSyntaxes: extraBlockSyntaxes,
             onTapLink: (text, href, title) => _handleLinkTap(href),
             builders: {
               'code': CodeBlockBuilder(

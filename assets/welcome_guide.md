@@ -20,6 +20,7 @@ House of Beor, LLC is a small technology company based in Eastern Pennsylvania. 
 * **Multi-View Modes**: Switch between **Rendered View**, **Split View**, and **Raw Source**.
 * **Rich Code Highlighting**: Syntax-highlighted code blocks with 1-click copy action.
 * **In-Document Search**: Press **⌘ + F** to find text.
+* **Readability Review**: Press **⇧ + ⌘ + R** to check sentence length, passive voice and more, with highlights in the Source and Split views. It stays off until you ask for it, and you can tune the limits in Settings (**⌘ + ,**).
 * **Full Keyboard Shortcuts**: macOS command shortcuts for seamless workflow.
 
 ---
@@ -32,6 +33,8 @@ House of Beor, LLC is a small technology company based in Eastern Pennsylvania. 
 | **⌘ + S** | Save file |
 | **⌘ + P** | Print rendered document |
 | **⌘ + R** | Reload current file |
+| **⇧ + ⌘ + R** | Show or hide the readability review |
+| **⌘ + ,** | Open Settings |
 | **⌘ + B** | Toggle Table of Contents sidebar |
 | **⌘ + T** | Toggle Light / Dark theme |
 | **⌘ + F** | Search within document |

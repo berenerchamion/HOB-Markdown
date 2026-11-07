@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hob_markdown_reader/models/readability_settings.dart';
 import 'package:hob_markdown_reader/services/settings_service.dart';
@@ -148,6 +149,46 @@ void main() {
       field(ReadabilityThreshold.paragraphMaxWords),
     );
     expect(textField.controller!.text, '150');
+  });
+
+  testWidgets('every field is wide enough for its largest value', (
+    tester,
+  ) async {
+    await openDialog(tester);
+
+    for (final t in ReadabilityThreshold.values) {
+      await scrollTo(tester, field(t));
+      await tester.enterText(field(t), '${t.max}');
+      await tester.pump();
+
+      // _Editable is the private widget whose render object lays out the
+      // text, so its intrinsic width is what the number needs.
+      final editable = tester.renderObject<RenderEditable>(
+        find.descendant(
+          of: field(t),
+          matching: find.byWidgetPredicate(
+            (w) => w.runtimeType.toString() == '_Editable',
+          ),
+        ),
+      );
+      expect(
+        editable.getMaxIntrinsicWidth(double.infinity),
+        lessThanOrEqualTo(editable.size.width),
+        reason: '${t.name} = ${t.max} is cut off',
+      );
+    }
+  });
+
+  testWidgets('the % unit fits on one line beside its field', (tester) async {
+    await openDialog(tester);
+
+    final paragraph = tester.renderObject<RenderParagraph>(
+      find.text('%').first,
+    );
+    expect(
+      paragraph.getMaxIntrinsicWidth(double.infinity),
+      lessThanOrEqualTo(paragraph.size.width),
+    );
   });
 
   testWidgets('the close button closes the dialog', (tester) async {

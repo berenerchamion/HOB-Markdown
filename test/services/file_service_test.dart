@@ -32,7 +32,7 @@ void main() {
       expect(doc.content, '# UTF-8 Heading\n\nHello world!');
       expect(doc.headings.length, 1);
       expect(doc.headings.first.title, 'UTF-8 Heading');
-      expect(doc.wordCount, 5);
+      expect(doc.wordCount, 4); // "UTF-8" is one word
       expect(doc.lineCount, 3);
       expect(doc.byteSize, greaterThan(0));
       expect(doc.lastModified, isNotNull);

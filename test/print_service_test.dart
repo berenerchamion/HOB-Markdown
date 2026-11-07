@@ -44,6 +44,20 @@ void main() {
   group('PrintService HTML Generation Tests', () {
     const printService = PrintService();
 
+    test('turns GitHub alerts into a titled blockquote', () {
+      final doc = createTestDoc(
+        fileName: 'alert.md',
+        content: '> [!TIP]\n> Press the button.',
+      );
+
+      final html = printService.generateHtml(doc);
+
+      expect(html, isNot(contains('[!TIP]')));
+      expect(html, contains('<blockquote class="alert alert-tip">'));
+      expect(html, contains('<strong>Tip</strong>'));
+      expect(html, contains('Press the button.'));
+    });
+
     test('generates valid HTML document with correct title and doctype', () {
       final doc = createTestDoc(
         fileName: 'Project Notes <2026>.md',

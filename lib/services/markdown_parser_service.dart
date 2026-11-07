@@ -1,4 +1,5 @@
 import '../models/toc_item.dart';
+import 'readability_service.dart';
 
 class MarkdownParserService {
   /// Extracts headings (H1-H6) from markdown content while ignoring code blocks.
@@ -64,17 +65,10 @@ class MarkdownParserService {
     return items;
   }
 
-  /// Calculates word count in the markdown content.
-  static int countWords(String content) {
-    if (content.trim().isEmpty) return 0;
-    // Remove code blocks and markdown symbols for more accurate word counting
-    final cleaned = content
-        .replaceAll(RegExp(r'```[\s\S]*?```'), '')
-        .replaceAll(RegExp(r'#+\s'), '')
-        .replaceAll(RegExp(r'[*_~`\[\]()]'), ' ');
-    final matches = RegExp(r'\b\w+\b').allMatches(cleaned);
-    return matches.length;
-  }
+  /// Counts the words a reader would see. Shares its rules with the
+  /// readability review so the status bar and the review panel agree.
+  static int countWords(String content) =>
+      ReadabilityService.countWords(content);
 
   /// Calculates character count (excluding extra whitespace).
   static int countCharacters(String content) {
