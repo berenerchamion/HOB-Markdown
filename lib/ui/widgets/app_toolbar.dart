@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/window_service.dart';
 import '../../state/reader_controller.dart';
 import 'settings_dialog.dart';
+import 'toolbar_controls.dart';
 
 class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
   final ReaderController controller;
@@ -21,7 +22,10 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
 
   /// Below this window width (plus any traffic-light inset) the view-mode
   /// buttons drop their labels.
-  static const double _modeLabelMinWidth = 1000;
+  static const double _modeLabelMinWidth = 920;
+
+  /// Space between toolbar wells.
+  static const double _wellGap = 8;
 
   static double get _height =>
       WindowService.usesCustomTitleBar ? WindowService.titleBarHeight : 56;
@@ -54,218 +58,184 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
     final doc = controller.currentDocument;
     final showModeLabels =
         MediaQuery.sizeOf(context).width >= _modeLabelMinWidth + leftInset;
+    // macOS has these in the menu bar, with shortcuts. Windows and Linux have
+    // no menu bar, so the toolbar is their only way to reach them.
+    final hasMenuBar = WindowService.usesCustomTitleBar;
 
     return AppBar(
       toolbarHeight: _height,
       leadingWidth: leftInset + (isCompact ? 56 : 48),
       leading: Padding(
         padding: EdgeInsets.only(left: leftInset),
-        child: IconButton(
-          icon: Icon(
-            controller.isSidebarOpen && !isCompact
+        child: Center(
+          child: ToolbarButton(
+            icon: controller.isSidebarOpen && !isCompact
                 ? Icons.menu_open_rounded
                 : Icons.menu_rounded,
-            color: colorScheme.onSurface,
+            tooltip: 'Toggle Table of Contents (⌘B)',
+            onPressed: onToggleSidebar,
           ),
-          tooltip: 'Toggle Table of Contents (⌘B)',
-          onPressed: onToggleSidebar,
         ),
       ),
-      titleSpacing: 0,
+      titleSpacing: 4,
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Document Title Chip
+          // Document title, flat like a macOS window title.
           if (doc != null)
             Flexible(
               child: Tooltip(
                 message: doc.path ?? 'Sample Document (In-memory)',
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHigh.withValues(
-                      alpha: 0.5,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.article_outlined,
+                      size: 16,
+                      color: colorScheme.onSurfaceVariant,
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.article_outlined,
-                        size: 16,
-                        color: colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          controller.isDirty
-                              ? '${doc.fileName} •'
-                              : doc.fileName,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: controller.isDirty
-                                ? colorScheme.primary
-                                : colorScheme.onSurface,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        controller.isDirty ? '${doc.fileName} •' : doc.fileName,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             )
           else
             Text(
               'HOB Markdown',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
 
-          // View Mode Segmented Controls (Render / Split / Source)
           if (!isCompact && doc != null) ...[
-            const SizedBox(width: 12),
-            SegmentedButton<ViewMode>(
-              showSelectedIcon: false,
-              segments: [
-                for (final (mode, icon, label) in const [
-                  (ViewMode.rendered, Icons.auto_stories_outlined, 'Render'),
-                  (ViewMode.split, Icons.vertical_split_outlined, 'Split'),
-                  (ViewMode.source, Icons.code_rounded, 'Source'),
-                ])
-                  ButtonSegment<ViewMode>(
-                    value: mode,
-                    icon: Icon(icon, size: 16),
-                    // Narrow windows show icons only so the toolbar fits.
-                    label: showModeLabels ? Text(label) : null,
-                    tooltip: showModeLabels ? null : label,
-                  ),
-              ],
-              selected: {controller.viewMode},
-              onSelectionChanged: (newSelection) {
-                controller.setViewMode(newSelection.first);
-              },
+            const SizedBox(width: 14),
+            ViewModeSwitch(
+              value: controller.viewMode,
+              onChanged: controller.setViewMode,
+              showLabels: showModeLabels,
             ),
           ],
         ],
       ),
+      // One centred row, so the wells keep their own height instead of
+      // being stretched to the toolbar's.
       actions: [
-        // Save Button (⌘S)
-        if (doc != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: controller.isDirty
-                ? FilledButton.tonalIcon(
-                    onPressed: () => controller.saveCurrentFile(),
-                    icon: const Icon(Icons.save_rounded, size: 16),
-                    label: const Text('Save'),
-                    style: FilledButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Document actions
+              if (doc != null) ...[
+                ToolbarWell(
+                  children: [
+                    ToolbarButton(
+                      icon: controller.isDirty
+                          ? Icons.save_rounded
+                          : Icons.save_outlined,
+                      tooltip: 'Save (⌘S)',
+                      label: controller.isDirty ? 'Save' : null,
+                      prominent: controller.isDirty,
+                      onPressed: () => controller.saveCurrentFile(),
                     ),
-                  )
-                : IconButton(
-                    icon: const Icon(Icons.save_outlined, size: 20),
-                    tooltip: 'Save (⌘S)',
-                    onPressed: () => controller.saveCurrentFile(),
+                    ToolbarButton(
+                      icon: Icons.print_outlined,
+                      tooltip: 'Print rendered document (⌘P)',
+                      onPressed: () => controller.printDocument(),
+                    ),
+                    if (!hasMenuBar && doc.path != null)
+                      ToolbarButton(
+                        icon: Icons.refresh_rounded,
+                        tooltip: 'Reload File (⌘R)',
+                        onPressed: () => controller.reloadCurrentFile(),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: _wellGap),
+              ],
+
+              // Zoom (Windows and Linux only; macOS has it in the View menu)
+              if (!hasMenuBar && !isCompact) ...[
+                ToolbarWell(
+                  children: [
+                    ToolbarButton(
+                      icon: Icons.zoom_out_rounded,
+                      tooltip: 'Zoom Out (⌘-)',
+                      onPressed: controller.zoomOut,
+                    ),
+                    ToolbarButton(
+                      icon: Icons.zoom_in_rounded,
+                      tooltip: 'Zoom In (⌘+)',
+                      onPressed: controller.zoomIn,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: _wellGap),
+              ],
+
+              // Tools that open a panel or overlay, shown as selected while open
+              if (doc != null) ...[
+                ToolbarWell(
+                  children: [
+                    ToolbarButton(
+                      icon: Icons.search_rounded,
+                      tooltip: 'Search in document (⌘F)',
+                      selected: controller.isSearching,
+                      onPressed: controller.toggleSearching,
+                    ),
+                    ToolbarButton(
+                      icon: Icons.fact_check_outlined,
+                      selectedIcon: Icons.fact_check,
+                      selected: controller.isReviewing,
+                      tooltip: controller.isReviewing
+                          ? 'Hide readability review (⇧⌘R)'
+                          : 'Readability review (⇧⌘R)',
+                      onPressed: controller.toggleReview,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: _wellGap),
+              ],
+
+              // App-level: Settings is also in the macOS app menu, but Windows and
+              // Linux have no menu bar, so this is their way in.
+              ToolbarWell(
+                children: [
+                  ToolbarButton(
+                    icon: Icons.settings_outlined,
+                    tooltip: 'Settings (⌘,)',
+                    onPressed: () => showSettingsDialog(context, controller),
                   ),
-          ),
-
-        // Print Button (⌘P)
-        if (doc != null)
-          IconButton(
-            icon: const Icon(Icons.print_outlined, size: 20),
-            tooltip: 'Print rendered document (⌘P)',
-            onPressed: () => controller.printDocument(),
-          ),
-
-        // Search Button
-        if (doc != null)
-          IconButton(
-            icon: Icon(
-              controller.isSearching
-                  ? Icons.search_off_rounded
-                  : Icons.search_rounded,
-              size: 20,
-            ),
-            tooltip: 'Search in document (⌘F)',
-            onPressed: controller.toggleSearching,
-          ),
-
-        // Zoom Out
-        if (!isCompact)
-          IconButton(
-            icon: const Icon(Icons.zoom_out_rounded, size: 20),
-            tooltip: 'Zoom Out (⌘-)',
-            onPressed: controller.zoomOut,
-          ),
-
-        // Zoom In
-        if (!isCompact)
-          IconButton(
-            icon: const Icon(Icons.zoom_in_rounded, size: 20),
-            tooltip: 'Zoom In (⌘+)',
-            onPressed: controller.zoomIn,
-          ),
-
-        // Reload File
-        if (doc?.path != null)
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, size: 20),
-            tooltip: 'Reload File (⌘R)',
-            onPressed: () => controller.reloadCurrentFile(),
-          ),
-
-        // Readability review
-        if (doc != null)
-          IconButton(
-            icon: const Icon(Icons.fact_check_outlined, size: 20),
-            selectedIcon: const Icon(Icons.fact_check, size: 20),
-            isSelected: controller.isReviewing,
-            tooltip: controller.isReviewing
-                ? 'Hide readability review (⇧⌘R)'
-                : 'Readability review (⇧⌘R)',
-            onPressed: controller.toggleReview,
-          ),
-
-        // Settings. Also in the app menu on macOS, but Windows and Linux
-        // have no native menu bar, so this is their way in.
-        IconButton(
-          icon: const Icon(Icons.settings_outlined, size: 20),
-          tooltip: 'Settings (⌘,)',
-          onPressed: () => showSettingsDialog(context, controller),
-        ),
-
-        // Open Help
-        IconButton(
-          icon: const Icon(Icons.help, size: 20),
-          tooltip: 'Show help',
-          onPressed: () => controller.showHelpWindow(),
-        ),
-
-        const SizedBox(width: 8),
-
-        // Open File Button
-        Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: FilledButton.icon(
-            onPressed: () => controller.openFilePicker(),
-            icon: const Icon(Icons.file_open_outlined, size: 16),
-            label: const Text('Open'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                  ToolbarButton(
+                    icon: Icons.help_outline_rounded,
+                    tooltip: 'Show help',
+                    onPressed: () => controller.showHelpWindow(),
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(width: _wellGap),
+
+              ToolbarWell(
+                children: [
+                  ToolbarButton(
+                    icon: Icons.file_open_outlined,
+                    tooltip: 'Open file (⌘O)',
+                    label: 'Open',
+                    onPressed: () => controller.openFilePicker(),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+            ],
           ),
         ),
       ],
