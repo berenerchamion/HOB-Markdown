@@ -42,9 +42,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Pinned to the 3.47 line (latest patch) to match local development.
+      # Flutter 3.50 deprecates package:flutter/material.dart in favour of
+      # package:material_ui, which fails `flutter analyze` on every import.
+      # Unpin when the app migrates to 3.50 and material_ui.
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: 3.47.x
           cache: true
 
       # Flutter's Linux desktop build needs these system packages; lcov is for
