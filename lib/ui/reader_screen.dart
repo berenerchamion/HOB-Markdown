@@ -266,6 +266,10 @@ class _ReaderScreenState extends State<ReaderScreen> {
                 ): () =>
                     widget.controller.toggleTheme(),
 
+                // Help: F1 on Windows and Linux (Mac keyboards need fn+F1)
+                const SingleActivator(LogicalKeyboardKey.f1): () =>
+                    widget.controller.showHelpWindow(),
+
                 // View Modes: Cmd + 1/2/3
                 const SingleActivator(
                   LogicalKeyboardKey.digit1,

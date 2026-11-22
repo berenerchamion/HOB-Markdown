@@ -17,6 +17,69 @@ void expectGutterLabels(WidgetTester tester, int count) {
 
 void main() {
   group('RawMarkdownView Widget Tests', () {
+    testWidgets('Tab indents and Shift+Tab outdents instead of moving focus', (
+      WidgetTester tester,
+    ) async {
+      final doc = DocumentModel(
+        path: '/test/tab.md',
+        fileName: 'tab.md',
+        content: 'ab',
+        byteSize: 2,
+        headings: const [],
+        wordCount: 1,
+        charCount: 2,
+        lineCount: 1,
+        readingTimeMinutes: 0.1,
+      );
+      String? changed;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme(),
+          home: Scaffold(
+            body: RawMarkdownView(
+              document: doc,
+              scaleFactor: 1.0,
+              onChanged: (text) => changed = text,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextField));
+      await tester.pump();
+      final field = tester.widget<TextField>(find.byType(TextField));
+      field.controller!.selection = const TextSelection.collapsed(offset: 1);
+      await tester.pump();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump(
+        const Duration(milliseconds: 200),
+      ); // onChanged debounce
+
+      expect(field.controller!.text, 'a  b');
+      expect(field.controller!.selection.baseOffset, 3);
+      expect(field.focusNode!.hasFocus, isTrue);
+      expect(changed, 'a  b');
+
+      // Shift+Tab takes the indent back off and keeps focus.
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump();
+      expect(field.controller!.text, 'a  b'); // not at the line start
+      field.controller!.text = '  ab';
+      field.controller!.selection = const TextSelection.collapsed(offset: 2);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump();
+      expect(field.controller!.text, 'ab');
+      expect(field.focusNode!.hasFocus, isTrue);
+      await tester.pump(const Duration(seconds: 6)); // review resume timer
+    });
+
     testWidgets('renders line numbers gutter and text editor', (
       WidgetTester tester,
     ) async {

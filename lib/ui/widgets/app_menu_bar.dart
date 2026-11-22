@@ -65,6 +65,24 @@ class AppMenuBar extends StatelessWidget {
               ),
               onSelected: () => showSettingsDialog(context, controller),
             ),
+            // Standard macOS app-menu items. Hide owns ⌘H on every Mac app,
+            // so no app shortcut may use it.
+            if (PlatformProvidedMenuItem.hasMenu(
+              PlatformProvidedMenuItemType.hide,
+            ))
+              const PlatformMenuItemGroup(
+                members: [
+                  PlatformProvidedMenuItem(
+                    type: PlatformProvidedMenuItemType.hide,
+                  ),
+                  PlatformProvidedMenuItem(
+                    type: PlatformProvidedMenuItemType.hideOtherApplications,
+                  ),
+                  PlatformProvidedMenuItem(
+                    type: PlatformProvidedMenuItemType.showAllApplications,
+                  ),
+                ],
+              ),
             if (PlatformProvidedMenuItem.hasMenu(
               PlatformProvidedMenuItemType.quit,
             ))
@@ -245,6 +263,8 @@ class AppMenuBar extends StatelessWidget {
           menus: <PlatformMenuItem>[
             PlatformMenuItem(
               label: 'Welcome Guide & Shortcuts',
+              // No shortcut: macOS reserves ⇧⌘/ (⌘?) system-wide for
+              // "Show Help menu", so an app shortcut there never fires.
               onSelected: () => controller.showHelpWindow(),
             ),
           ],

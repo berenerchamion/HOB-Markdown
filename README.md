@@ -2,7 +2,7 @@
 
 Markdown is cool, but unless you are always in Visual Studio Code (VSC) then how do you read and edit markdown files? Especially if they are not related to a software engineering project. Today I am using .md files outside of software engineering projects all the time - for example for creative writing and interacting with AI solutions. That's why I started this project...oh and its free to use so you can save some cash for beer instead.
 
-I created and edited this file in the HOB Markdown app!! 
+I created and edited this file in the HOB Markdown app!!
 
 ## Current Build Status
 

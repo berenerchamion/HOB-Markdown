@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/window_service.dart';
 import '../../state/reader_controller.dart';
 import 'settings_dialog.dart';
 
@@ -16,25 +17,59 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => Size.fromHeight(_height);
+
+  /// Below this window width (plus any traffic-light inset) the view-mode
+  /// buttons drop their labels.
+  static const double _modeLabelMinWidth = 1000;
+
+  static double get _height =>
+      WindowService.usesCustomTitleBar ? WindowService.titleBarHeight : 56;
 
   @override
   Widget build(BuildContext context) {
+    if (!WindowService.usesCustomTitleBar) {
+      return _buildAppBar(context, leftInset: 0);
+    }
+    // On macOS the toolbar doubles as the title bar: leave room for the
+    // traffic lights (except in full screen, where they're hidden), and let
+    // empty space drag the window and double-click to zoom.
+    return ValueListenableBuilder<bool>(
+      valueListenable: WindowService.isFullScreen,
+      builder: (context, isFullScreen, _) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onPanStart: (_) => WindowService.startDrag(),
+        onDoubleTap: WindowService.titleBarDoubleClicked,
+        child: _buildAppBar(
+          context,
+          leftInset: isFullScreen ? 0 : WindowService.trafficLightInset,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext context, {required double leftInset}) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final doc = controller.currentDocument;
+    final showModeLabels =
+        MediaQuery.sizeOf(context).width >= _modeLabelMinWidth + leftInset;
 
     return AppBar(
-      leadingWidth: isCompact ? 56 : 48,
-      leading: IconButton(
-        icon: Icon(
-          controller.isSidebarOpen && !isCompact
-              ? Icons.menu_open_rounded
-              : Icons.menu_rounded,
-          color: colorScheme.onSurface,
+      toolbarHeight: _height,
+      leadingWidth: leftInset + (isCompact ? 56 : 48),
+      leading: Padding(
+        padding: EdgeInsets.only(left: leftInset),
+        child: IconButton(
+          icon: Icon(
+            controller.isSidebarOpen && !isCompact
+                ? Icons.menu_open_rounded
+                : Icons.menu_rounded,
+            color: colorScheme.onSurface,
+          ),
+          tooltip: 'Toggle Table of Contents (⌘B)',
+          onPressed: onToggleSidebar,
         ),
-        tooltip: 'Toggle Table of Contents (⌘B)',
-        onPressed: onToggleSidebar,
       ),
       titleSpacing: 0,
       title: Row(
@@ -97,22 +132,19 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
             const SizedBox(width: 12),
             SegmentedButton<ViewMode>(
               showSelectedIcon: false,
-              segments: const [
-                ButtonSegment<ViewMode>(
-                  value: ViewMode.rendered,
-                  icon: Icon(Icons.auto_stories_outlined, size: 16),
-                  label: Text('Render'),
-                ),
-                ButtonSegment<ViewMode>(
-                  value: ViewMode.split,
-                  icon: Icon(Icons.vertical_split_outlined, size: 16),
-                  label: Text('Split'),
-                ),
-                ButtonSegment<ViewMode>(
-                  value: ViewMode.source,
-                  icon: Icon(Icons.code_rounded, size: 16),
-                  label: Text('Source'),
-                ),
+              segments: [
+                for (final (mode, icon, label) in const [
+                  (ViewMode.rendered, Icons.auto_stories_outlined, 'Render'),
+                  (ViewMode.split, Icons.vertical_split_outlined, 'Split'),
+                  (ViewMode.source, Icons.code_rounded, 'Source'),
+                ])
+                  ButtonSegment<ViewMode>(
+                    value: mode,
+                    icon: Icon(icon, size: 16),
+                    // Narrow windows show icons only so the toolbar fits.
+                    label: showModeLabels ? Text(label) : null,
+                    tooltip: showModeLabels ? null : label,
+                  ),
               ],
               selected: {controller.viewMode},
               onSelectionChanged: (newSelection) {
@@ -215,7 +247,7 @@ class AppToolbar extends StatelessWidget implements PreferredSizeWidget {
         // Open Help
         IconButton(
           icon: const Icon(Icons.help, size: 20),
-          tooltip: 'Show help (⌘H)',
+          tooltip: 'Show help',
           onPressed: () => controller.showHelpWindow(),
         ),
 

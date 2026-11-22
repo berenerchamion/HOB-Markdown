@@ -92,7 +92,7 @@ void main() {
       await tester.pumpWidget(buildTestApp());
       await tester.pumpAndSettle();
 
-      final helpButton = find.byTooltip('Show help (⌘H)');
+      final helpButton = find.byTooltip('Show help');
       expect(helpButton, findsOneWidget);
       expect(controller.isHelpWindowOpen, false);
 
@@ -152,7 +152,7 @@ void main() {
         expect(find.byTooltip('Search in document (⌘F)'), findsNothing);
 
         // General buttons still visible
-        expect(find.byTooltip('Show help (⌘H)'), findsOneWidget);
+        expect(find.byTooltip('Show help'), findsOneWidget);
         expect(find.text('Open'), findsOneWidget);
       },
     );

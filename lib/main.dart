@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'models/app_settings.dart';
 import 'services/file_open_service.dart';
 import 'services/settings_service.dart';
+import 'services/window_service.dart';
 import 'state/reader_controller.dart';
 import 'theme/app_theme.dart';
 import 'ui/reader_screen.dart';
@@ -105,6 +106,27 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
     FileOpenService.setFileOpenListener((filePath) async {
       await _handleIncomingFile(filePath);
     });
+
+    WindowService.init();
+    _controller.addListener(_syncWindow);
+    _syncWindow();
+  }
+
+  /// The macOS title bar is hidden, so the window title and the edited dot
+  /// are set natively; macOS shows them in Mission Control, the Dock and the
+  /// close button.
+  void _syncWindow() {
+    final doc = _controller.currentDocument;
+    WindowService.setDocument(
+      title: _windowTitle,
+      path: doc?.path,
+      edited: _controller.isDirty,
+    );
+  }
+
+  String get _windowTitle {
+    final fileName = _controller.currentDocument?.fileName;
+    return fileName != null ? '$fileName — HOB Markdown' : 'HOB Markdown';
   }
 
   Future<void> _handleIncomingFile(String filePath) async {
@@ -142,6 +164,7 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
 
   @override
   void dispose() {
+    _controller.removeListener(_syncWindow);
     _controller.dispose();
     super.dispose();
   }
@@ -151,13 +174,9 @@ class _MarkdownReaderAppState extends State<MarkdownReaderApp> {
     return ListenableBuilder(
       listenable: _controller,
       builder: (context, _) {
-        final title = _controller.currentDocument?.fileName != null
-            ? '${_controller.currentDocument!.fileName} — HOB Markdown'
-            : 'HOB Markdown';
-
         return MaterialApp(
           navigatorKey: _navigatorKey,
-          title: title,
+          title: _windowTitle,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme(),
           darkTheme: AppTheme.darkTheme(),

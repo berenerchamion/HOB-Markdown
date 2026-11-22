@@ -9,6 +9,7 @@ import '../../models/document_model.dart';
 import '../../models/readability_settings.dart';
 import '../../services/readability_service.dart';
 import '../readability_style.dart';
+import 'editor_indent.dart';
 
 class RawMarkdownView extends StatefulWidget {
   final DocumentModel document;
@@ -142,6 +143,13 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
         widget.onChanged!(_textController.text);
       }
     });
+  }
+
+  /// Applies an indent or outdent through the controller, so the change
+  /// listener, undo and onChanged all see it like typed text.
+  void _applyEdit(TextEditingValue Function(TextEditingValue) edit) {
+    final next = edit(_textController.value);
+    if (next != _textController.value) _textController.value = next;
   }
 
   void _pauseReview() {
@@ -313,22 +321,37 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
                   // Interactive Source Code Editor
                   Padding(
                     padding: EdgeInsets.only(left: textLeft),
-                    child: TextField(
-                      key: _fieldKey,
-                      controller: _textController,
-                      focusNode: _focusNode,
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      style: codeFont,
-                      strutStyle: strutStyle,
-                      cursorColor: colorScheme.primary,
-                      cursorWidth: 2,
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
+                    // Tab and Shift+Tab indent and outdent, as in code
+                    // editors, instead of moving focus (the app-wide
+                    // default). Other shortcuts and the mouse still leave
+                    // the editor.
+                    child: CallbackShortcuts(
+                      bindings: <ShortcutActivator, VoidCallback>{
+                        const SingleActivator(LogicalKeyboardKey.tab): () =>
+                            _applyEdit(indentText),
+                        const SingleActivator(
+                          LogicalKeyboardKey.tab,
+                          shift: true,
+                        ): () =>
+                            _applyEdit(outdentText),
+                      },
+                      child: TextField(
+                        key: _fieldKey,
+                        controller: _textController,
+                        focusNode: _focusNode,
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                        style: codeFont,
+                        strutStyle: strutStyle,
+                        cursorColor: colorScheme.primary,
+                        cursorWidth: 2,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
