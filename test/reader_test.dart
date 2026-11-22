@@ -9,6 +9,7 @@ import 'package:hob_markdown_reader/services/markdown_parser_service.dart';
 import 'package:hob_markdown_reader/state/reader_controller.dart';
 import 'package:hob_markdown_reader/theme/app_theme.dart';
 import 'package:hob_markdown_reader/ui/reader_screen.dart';
+import 'package:hob_markdown_reader/ui/widgets/toc_sidebar.dart';
 import 'package:hob_markdown_reader/ui/widgets/empty_state_view.dart';
 import 'package:hob_markdown_reader/ui/widgets/help_panel.dart';
 import 'package:hob_markdown_reader/ui/widgets/markdown_view.dart';
@@ -233,6 +234,59 @@ Setext Level 2
       expect(find.text('Outline'), findsOneWidget);
 
       controller.dispose();
+    });
+
+    testWidgets('the outline highlights the heading in view as you scroll', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final controller = ReaderController();
+      addTearDown(controller.dispose);
+      final theme = AppTheme.lightTheme();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: ReaderScreen(controller: controller),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final headings = controller.currentDocument!.headings;
+      expect(headings.length, greaterThan(2));
+      List<String> highlighted() => tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(TocSidebar),
+              matching: find.byType(Text),
+            ),
+          )
+          .where((t) => t.style?.color == theme.colorScheme.primary)
+          .map((t) => t.data!)
+          .where((text) => !RegExp(r'^H\d$').hasMatch(text)) // level badges
+          .toList();
+
+      // At the top, the first heading is the one in view.
+      expect(highlighted(), [headings.first.title]);
+
+      // Scrolled to the end, a later heading takes over.
+      await tester.drag(find.byType(MarkdownView), const Offset(0, -100000));
+      await tester.pumpAndSettle();
+      expect(highlighted(), hasLength(1));
+      expect(highlighted().single, isNot(headings.first.title));
+
+      // Picking a heading highlights it straight away.
+      final target = headings[1];
+      await tester.tap(
+        find.descendant(
+          of: find.byType(TocSidebar),
+          matching: find.text(target.title),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(highlighted(), [target.title]);
     });
 
     testWidgets('switches to Split and Source views', (

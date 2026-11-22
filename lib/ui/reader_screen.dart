@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../models/document_model.dart';
 import '../models/toc_item.dart';
 import '../state/reader_controller.dart';
 import 'widgets/app_toolbar.dart';
@@ -30,21 +31,44 @@ class _ReaderScreenState extends State<ReaderScreen> {
   final FocusNode _focusNode = FocusNode();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// The heading at the top of the view, highlighted in the outline.
+  final ValueNotifier<TocItem?> _activeHeading = ValueNotifier(null);
+
+  /// True while scrolling to a heading picked in the outline, so the picked
+  /// heading stays highlighted even if the scroll position can't reach it
+  /// (headings near the end of a document).
+  bool _navigating = false;
+
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_onControllerStateChanged);
+    _scrollController.addListener(_updateActiveHeading);
+    // The first document may already be loaded, so there's no change to
+    // react to: work out its active heading once it has been laid out.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateActiveHeading();
+    });
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerStateChanged);
+    _scrollController.removeListener(_updateActiveHeading);
+    _activeHeading.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void _onControllerStateChanged() {
+    // A newly opened or edited document needs its active heading worked out
+    // without waiting for a scroll.
+    if (!identical(widget.controller.currentDocument, _countedDoc)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _updateActiveHeading();
+      });
+    }
     final error = widget.controller.errorMessage;
     if (error != null && mounted) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -75,18 +99,63 @@ class _ReaderScreenState extends State<ReaderScreen> {
     final doc = widget.controller.currentDocument;
     if (doc == null || !_scrollController.hasClients) return;
 
-    final totalLines = doc.content.split('\n').length;
+    final totalLines = _lineCount(doc);
     if (totalLines <= 0) return;
 
     final maxScroll = _scrollController.position.maxScrollExtent;
     final targetFraction = (item.lineNumber / totalLines).clamp(0.0, 1.0);
     final targetOffset = (maxScroll * targetFraction).clamp(0.0, maxScroll);
 
-    _scrollController.animateTo(
-      targetOffset,
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeInOutCubic,
-    );
+    _activeHeading.value = item;
+    _navigating = true;
+    _scrollController
+        .animateTo(
+          targetOffset,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOutCubic,
+        )
+        .whenComplete(() => _navigating = false);
+  }
+
+  // Splitting a long document on every scroll event would be wasteful, so
+  // the line count is cached per document.
+  DocumentModel? _countedDoc;
+  int _countedLines = 0;
+
+  int _lineCount(DocumentModel doc) {
+    if (!identical(doc, _countedDoc)) {
+      _countedDoc = doc;
+      _countedLines = doc.content.split('\n').length;
+    }
+    return _countedLines;
+  }
+
+  /// Works out which heading is in view. It inverts the estimate
+  /// [_scrollToHeading] uses (scroll position as a fraction of the document's
+  /// lines), so picking a heading and then reading it always agree.
+  void _updateActiveHeading() {
+    if (_navigating || !_scrollController.hasClients) return;
+    final doc = widget.controller.currentDocument;
+    if (doc == null || doc.headings.isEmpty) {
+      _activeHeading.value = null;
+      return;
+    }
+    final position = _scrollController.position;
+    final maxScroll = position.maxScrollExtent;
+    final totalLines = _lineCount(doc);
+    final fraction = maxScroll <= 0 ? 0.0 : position.pixels / maxScroll;
+    // Half a line of slack absorbs rounding from the forward estimate.
+    final line = fraction * totalLines + 0.5;
+
+    var active = doc.headings.first;
+    for (final heading in doc.headings) {
+      if (heading.lineNumber <= line) {
+        active = heading;
+      } else {
+        break;
+      }
+    }
+    _activeHeading.value = active;
   }
 
   int _calculateSearchMatches(String content, String query) {
@@ -331,19 +400,34 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                     TocSidebar(
                                       headings: doc.headings,
                                       onHeadingSelected: _scrollToHeading,
+                                      activeHeading: _activeHeading,
                                     ),
 
-                                  // Document Area or Empty State
+                                  // Document Area or Empty State, with the
+                                  // status bar under the document only, so
+                                  // the sidebar runs the full window height.
                                   Expanded(
-                                    child: widget.controller.isLoading
-                                        ? const Center(
-                                            child: CircularProgressIndicator(),
-                                          )
-                                        : doc != null
-                                        ? _buildDocumentView(doc)
-                                        : EmptyStateView(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: widget.controller.isLoading
+                                              ? const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                )
+                                              : doc != null
+                                              ? _buildDocumentView(doc)
+                                              : EmptyStateView(
+                                                  controller: widget.controller,
+                                                ),
+                                        ),
+                                        if (doc != null)
+                                          DocumentStatusBar(
+                                            document: doc,
                                             controller: widget.controller,
                                           ),
+                                      ],
+                                    ),
                                   ),
 
                                   // Readability review results
@@ -355,13 +439,6 @@ class _ReaderScreenState extends State<ReaderScreen> {
                                 ],
                               ),
                             ),
-
-                            // Document Info Bottom Status Bar
-                            if (doc != null)
-                              DocumentStatusBar(
-                                document: doc,
-                                controller: widget.controller,
-                              ),
                           ],
                         ),
 

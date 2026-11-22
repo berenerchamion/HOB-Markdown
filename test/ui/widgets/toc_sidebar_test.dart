@@ -67,11 +67,18 @@ void main() {
 
       expect(find.text('3'), findsOneWidget);
       expect(find.text('Introduction'), findsOneWidget);
-      expect(find.text('H1'), findsOneWidget);
       expect(find.text('Getting Started'), findsOneWidget);
-      expect(find.text('H2'), findsOneWidget);
       expect(find.text('Configuration'), findsOneWidget);
+      expect(find.text('H1'), findsOneWidget);
+      expect(find.text('H2'), findsOneWidget);
       expect(find.text('H3'), findsOneWidget);
+
+      // Levels are also shown by indentation, deeper headings further right.
+      final x1 = tester.getTopLeft(find.text('Introduction')).dx;
+      final x2 = tester.getTopLeft(find.text('Getting Started')).dx;
+      final x3 = tester.getTopLeft(find.text('Configuration')).dx;
+      expect(x1, lessThan(x2));
+      expect(x2, lessThan(x3));
 
       // Filter input is NOT shown for <= 4 headings
       expect(find.byType(TextField), findsNothing);
@@ -87,6 +94,49 @@ void main() {
       await tester.tap(closeButton);
       await tester.pumpAndSettle();
       expect(closed, true);
+    });
+
+    testWidgets('highlights the active heading and follows changes', (
+      WidgetTester tester,
+    ) async {
+      const intro = TocItem(
+        level: 1,
+        title: 'Intro',
+        lineNumber: 1,
+        anchor: 'intro',
+      );
+      const usage = TocItem(
+        level: 2,
+        title: 'Usage',
+        lineNumber: 9,
+        anchor: 'usage',
+      );
+      final active = ValueNotifier<TocItem?>(intro);
+      addTearDown(active.dispose);
+      final theme = AppTheme.lightTheme();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: TocSidebar(
+              headings: const [intro, usage],
+              onHeadingSelected: (_) {},
+              activeHeading: active,
+            ),
+          ),
+        ),
+      );
+
+      Color? colorOf(String title) =>
+          tester.widget<Text>(find.text(title)).style?.color;
+      expect(colorOf('Intro'), theme.colorScheme.primary);
+      expect(colorOf('Usage'), isNot(theme.colorScheme.primary));
+
+      active.value = usage;
+      await tester.pump();
+      expect(colorOf('Usage'), theme.colorScheme.primary);
+      expect(colorOf('Intro'), isNot(theme.colorScheme.primary));
     });
 
     testWidgets(

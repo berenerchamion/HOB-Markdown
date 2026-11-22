@@ -18,53 +18,48 @@ class DocumentStatusBar extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // A quiet strip in the window's own background colour with no top rule,
+    // like a macOS status bar, so it reads as the floor of the window rather
+    // than a separate panel.
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLowest,
-        border: Border(
-          top: BorderSide(color: colorScheme.outlineVariant, width: 1),
-        ),
-      ),
+      height: 26,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      color: theme.scaffoldBackgroundColor,
+      alignment: Alignment.centerLeft,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
             // Auto reload indicator
             if (document.path != null) ...[
-              InkWell(
+              _StatusAction(
                 onTap: controller.toggleAutoReload,
-                borderRadius: BorderRadius.circular(4),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: controller.autoReloadEnabled
-                              ? Colors.green
-                              : colorScheme.onSurfaceVariant,
-                        ),
+                tooltip: controller.autoReloadEnabled
+                    ? 'Stop reloading when the file changes on disk'
+                    : 'Reload automatically when the file changes on disk',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: controller.autoReloadEnabled
+                            ? Colors.green
+                            : colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.5,
+                              ),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        controller.autoReloadEnabled
-                            ? 'Live Watcher On'
-                            : 'Live Watcher Off',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      controller.autoReloadEnabled
+                          ? 'Live Watcher On'
+                          : 'Live Watcher Off',
+                      style: _labelStyle(theme, colorScheme),
+                    ),
+                  ],
                 ),
               ),
               _buildDivider(colorScheme),
@@ -106,29 +101,23 @@ class DocumentStatusBar extends StatelessWidget {
             _buildDivider(colorScheme),
 
             // Zoom indicator
-            InkWell(
+            _StatusAction(
               onTap: controller.resetZoom,
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.zoom_in_rounded,
-                      size: 14,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${(controller.textScaleFactor * 100).round()}%',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+              tooltip: 'Reset zoom (⌘0)',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.zoom_in_rounded,
+                    size: 13,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${(controller.textScaleFactor * 100).round()}%',
+                    style: _labelStyle(theme, colorScheme),
+                  ),
+                ],
               ),
             ),
           ],
@@ -154,24 +143,71 @@ class DocumentStatusBar extends StatelessWidget {
             color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
           ),
           const SizedBox(width: 5),
-          Text(
-            text,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(text, style: _labelStyle(theme, colorScheme)),
         ],
       ),
     );
   }
 
+  TextStyle? _labelStyle(ThemeData theme, ColorScheme colorScheme) =>
+      theme.textTheme.labelSmall?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w500,
+      );
+
   Widget _buildDivider(ColorScheme colorScheme) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      height: 12,
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      height: 10,
       width: 1,
-      color: colorScheme.outlineVariant,
+      color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+    );
+  }
+}
+
+/// A clickable status item: a soft rounded highlight on hover, no ripple.
+class _StatusAction extends StatefulWidget {
+  final VoidCallback onTap;
+  final String tooltip;
+  final Widget child;
+
+  const _StatusAction({
+    required this.onTap,
+    required this.tooltip,
+    required this.child,
+  });
+
+  @override
+  State<_StatusAction> createState() => _StatusActionState();
+}
+
+class _StatusActionState extends State<_StatusAction> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: widget.tooltip,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 100),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: _hovered
+                  ? colorScheme.onSurface.withValues(alpha: 0.07)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: widget.child,
+          ),
+        ),
+      ),
     );
   }
 }
