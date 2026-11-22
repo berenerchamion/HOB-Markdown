@@ -36,6 +36,17 @@ void main(List<String> args) async {
     yield LicenseEntryWithLineBreaks(['Open Font License'], license);
   });
 
+  // Bundled UI and code fonts, both SIL Open Font License 1.1.
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/OFL-Inter.txt');
+    yield LicenseEntryWithLineBreaks(['Inter font'], license);
+  });
+
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/OFL-JetBrainsMono.txt');
+    yield LicenseEntryWithLineBreaks(['JetBrains Mono font'], license);
+  });
+
   // Load app info before starting the app
   // - especially the app version number to use across the app
   AppInfo.load();

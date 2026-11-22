@@ -4,8 +4,9 @@ import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:markdown/markdown.dart' as md;
+
+import '../../theme/app_theme.dart';
 
 class CodeBlockBuilder extends MarkdownElementBuilder {
   final BuildContext context;
@@ -90,7 +91,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
               codeContent,
               language: language.isNotEmpty ? language : 'plaintext',
               theme: highlightTheme,
-              textStyle: GoogleFonts.jetBrainsMono(
+              textStyle: AppTheme.codeStyle(
                 fontSize: 13.5 * scaleFactor,
                 height: 1.5,
               ),

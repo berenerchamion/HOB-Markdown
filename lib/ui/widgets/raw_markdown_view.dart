@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/document_model.dart';
 import '../../models/readability_settings.dart';
 import '../../services/readability_service.dart';
+import '../../theme/app_theme.dart';
 import '../readability_style.dart';
 import 'editor_indent.dart';
 
@@ -255,13 +255,13 @@ class _RawMarkdownViewState extends State<RawMarkdownView> {
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    final codeFont = GoogleFonts.jetBrainsMono(
+    final codeFont = AppTheme.codeStyle(
       fontSize: 13.5 * widget.scaleFactor,
       height: _lineHeightFactor,
       color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B),
     );
 
-    final gutterFont = GoogleFonts.jetBrainsMono(
+    final gutterFont = AppTheme.codeStyle(
       fontSize: 13.5 * widget.scaleFactor,
       height: _lineHeightFactor,
       color: colorScheme.onSurfaceVariant.withValues(alpha: 0.45),

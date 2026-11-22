@@ -39,7 +39,6 @@ dependencies:
   flutter_highlight: ^0.7.0
   desktop_drop: ^0.8.0
   file_picker: ^13.1.0
-  google_fonts: ^8.2.1
   url_launcher: ^6.3.1
   path: ^1.9.0
   watcher: ^1.1.0
@@ -90,6 +89,8 @@ flutter:
   assets:
     - assets/LICENSE-2.0.txt
     - assets/OFL.txt
+    - assets/OFL-Inter.txt
+    - assets/OFL-JetBrainsMono.txt
     - assets/icon/master_icon.png
     - assets/welcome_guide.md
     - assets/fonts/
@@ -99,6 +100,30 @@ flutter:
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
+
+  # UI and body text (Inter 4.1) and code (JetBrains Mono 2.304), bundled so
+  # every weight is the real face rather than a synthesized bold, and so the
+  # app never fetches fonts from the network. Both are SIL OFL 1.1.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-BoldItalic.ttf
+          weight: 700
+          style: italic
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+        - asset: assets/fonts/JetBrainsMono-Bold.ttf
+          weight: 700
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

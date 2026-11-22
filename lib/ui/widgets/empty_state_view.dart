@@ -61,7 +61,7 @@ class EmptyStateView extends StatelessWidget {
                     Text(
                       'No Markdown File Open',
                       style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
@@ -140,7 +140,7 @@ class EmptyStateView extends StatelessWidget {
                   child: Text(
                     'Recent Files',
                     style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),

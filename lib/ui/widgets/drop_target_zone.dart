@@ -136,7 +136,7 @@ class _DropTargetZoneState extends State<DropTargetZone>
                                   'Drop Markdown file here',
                                   style: theme.textTheme.headlineSmall
                                       ?.copyWith(
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w600,
                                         color: colorScheme.onSurface,
                                       ),
                                   textAlign: TextAlign.center,

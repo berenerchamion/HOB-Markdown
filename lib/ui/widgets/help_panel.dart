@@ -112,7 +112,7 @@ class _HelpPanelState extends State<HelpPanel> {
                             child: Text(
                               'Welcome Guide & Shortcuts',
                               style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
                               overflow: TextOverflow.ellipsis,

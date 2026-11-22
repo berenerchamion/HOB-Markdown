@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Primary seed color (Modern Indigo Blue)
   static const Color primarySeed = Color(0xFF2563EB);
+
+  /// Bundled font families (see `fonts:` in pubspec.yaml). Because they're
+  /// registered with every weight, `copyWith(fontWeight: ...)` picks the
+  /// real face instead of a synthesized bold.
+  static const String uiFontFamily = 'Inter';
+  static const String codeFontFamily = 'JetBrainsMono';
+
+  /// Monospace style for code: the editor, code blocks and inline code.
+  static TextStyle codeStyle({
+    double? fontSize,
+    double? height,
+    Color? color,
+  }) => TextStyle(
+    fontFamily: codeFontFamily,
+    fontSize: fontSize,
+    height: height,
+    color: color,
+  );
 
   static ThemeData lightTheme() {
     final colorScheme = ColorScheme.fromSeed(
@@ -23,13 +40,13 @@ class AppTheme {
 
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: uiFontFamily,
       brightness: Brightness.light,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
     );
 
     return base.copyWith(
-      textTheme: GoogleFonts.interTextTheme(base.textTheme),
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainerLowest,
         elevation: 0,
@@ -78,13 +95,13 @@ class AppTheme {
 
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: uiFontFamily,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
     );
 
     return base.copyWith(
-      textTheme: GoogleFonts.interTextTheme(base.textTheme),
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainerLow,
         elevation: 0,
@@ -124,7 +141,7 @@ class AppTheme {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final codeFont = GoogleFonts.jetBrainsMono();
+    final codeFont = codeStyle();
 
     final Color bodyColor = isDark
         ? const Color(0xFFCBD5E1)
@@ -142,9 +159,12 @@ class AppTheme {
 
     return MarkdownStyleSheet(
       // Headings (H1 to H6)
+      // Semibold throughout, with size carrying the hierarchy, as macOS
+      // documents do. Inter's real Bold and ExtraBold read as heavy at
+      // these sizes.
       h1: TextStyle(
         fontSize: 28 * scaleFactor,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: headingColor,
         letterSpacing: -0.5,
         height: 1.3,
@@ -152,7 +172,7 @@ class AppTheme {
       h1Padding: const EdgeInsets.only(top: 28, bottom: 14),
       h2: TextStyle(
         fontSize: 22 * scaleFactor,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         color: headingColor,
         letterSpacing: -0.3,
         height: 1.3,
