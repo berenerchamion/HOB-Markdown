@@ -11,6 +11,13 @@ void main() {
     }
   });
 
+  test('themes are built once and reused', () {
+    // Rebuilding them on every controller change cost ~25 ms and made the
+    // rendered Markdown re-parse, because a new ThemeData counts as a change.
+    expect(identical(AppTheme.lightTheme(), AppTheme.lightTheme()), isTrue);
+    expect(identical(AppTheme.darkTheme(), AppTheme.darkTheme()), isTrue);
+  });
+
   test('code style uses the bundled JetBrains Mono family', () {
     expect(AppTheme.codeStyle().fontFamily, AppTheme.codeFontFamily);
   });

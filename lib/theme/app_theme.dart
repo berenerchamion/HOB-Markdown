@@ -23,7 +23,18 @@ class AppTheme {
     color: color,
   );
 
-  static ThemeData lightTheme() {
+  /// Built once and reused. Building a theme is expensive (the seed colour
+  /// scheme alone is a lot of colour maths), and `MarkdownReaderApp` asks for
+  /// both themes every time the controller changes. Rebuilding them also made
+  /// every theme-dependent widget, like the rendered Markdown, think the
+  /// theme had changed and redo its work.
+  static ThemeData lightTheme() => _light;
+  static ThemeData darkTheme() => _dark;
+
+  static final ThemeData _light = _buildLightTheme();
+  static final ThemeData _dark = _buildDarkTheme();
+
+  static ThemeData _buildLightTheme() {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primarySeed,
       brightness: Brightness.light,
@@ -78,7 +89,7 @@ class AppTheme {
     );
   }
 
-  static ThemeData darkTheme() {
+  static ThemeData _buildDarkTheme() {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primarySeed,
       brightness: Brightness.dark,
